@@ -1,0 +1,12 @@
+Typescript setup
+Basic datatypes:-
+--primitive types(number, string, boolean)
+--Arrays, Tuples, Enums
+--Any, Unknown, Void, null, Undefined, Never
+
+Primitives and reference
+[] {} ()  ----type reference --changes will always show in parent
+
+Type Inference & Type Annotations
+Interfaces and Type Aliases and Intersection types
+
