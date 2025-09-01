@@ -6,6 +6,7 @@
 
 // enum UserRoles{
 //     ADMIN = "admin",
+
 //     GUEST = "guest",
 //     SUPER_ADMIN = "superadmin"
 // }
