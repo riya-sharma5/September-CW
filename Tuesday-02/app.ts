@@ -89,3 +89,10 @@
 // }
 // let b1 = new BottleMaker("milton");
 // // b1.name = "mil";  it will compile but this is wrong
+
+// class User{
+//     constructor(public name: string, public email: string, public password: string){
+
+//     }
+// }
+// new User("riya", "riya@gmail.com", "123");
