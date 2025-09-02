@@ -80,3 +80,12 @@
 // }
 
 // let b1 = new BottleMaker("milton");
+
+
+
+// class BottleMaker{
+//     constructor(private name: string){}
+
+// }
+// let b1 = new BottleMaker("milton");
+// // b1.name = "mil";  it will compile but this is wrong
