@@ -78,6 +78,7 @@
 // function abcd(obj: Admin){
     
 // }
+console.log("hello")
 
 // type sankhya = number;
 // let a : sankhya;
