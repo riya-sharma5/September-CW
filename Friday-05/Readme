@@ -11,3 +11,7 @@ Task:- implement the server in typescript having two route one is for welcome pa
 In this task I have used HTTP method:- GET 
 used Url and setHeader which takes name and value
 used status codes and reponse.write();
+
+
+Task2:- same task but implemented by switch case
+
