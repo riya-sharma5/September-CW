@@ -1,0 +1,13 @@
+Learned about:-
+1. server
+2. API and their types
+3. URL and their parts
+4. setHeader
+5. status codes and how to use it
+
+
+Task:- implement the server in typescript having two route one is for welcome page on base URL and second is for the aboutMe (do not use express)
+
+In this task I have used HTTP method:- GET 
+used Url and setHeader which takes name and value
+used status codes and reponse.write();
