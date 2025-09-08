@@ -1,2 +1,2 @@
 export {};
-//# sourceMappingURL=server.d.ts.map
+//# sourceMappingURL=register.d.ts.map
