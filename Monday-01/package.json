@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "body": "^5.1.0",
+    "parsing": "^2.3.0"
+  }
+}

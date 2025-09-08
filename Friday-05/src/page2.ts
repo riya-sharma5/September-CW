@@ -1,5 +1,5 @@
 import * as http from 'http';
-import type { IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 
 const server = http.createServer((request: IncomingMessage, response: ServerResponse) => {
     const { url, method } = request;
@@ -27,8 +27,7 @@ const server = http.createServer((request: IncomingMessage, response: ServerResp
         response.statusCode = 405;
         response.write('Method Not Allowed');
     }
-
-    response.end();
+   response.end();
 });
 
 server.listen(3000);
