@@ -1,0 +1,7 @@
+// Task: - CRUD operation via typescript and mongodb, HTTP
+// Used some methods of mongoose like findOne and DeleteOne to find and delete
+// Learned about MVC structure 
+// Learned about various built-in modules of node js like:- 
+//        File System module
+//        URL module
+//        Path module
