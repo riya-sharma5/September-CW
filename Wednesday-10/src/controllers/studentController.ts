@@ -11,7 +11,7 @@ export const registerStudent = async (req: Request, res: Response) => {
     }
 
 const exists = await StudentModel.findOne({rollno});
-    if (exists) return res.status(400).json({ error: "Student already exists" });
+    if (exists) return res.status(400).json({error:"Student already exists" });
 
 const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -24,9 +24,9 @@ const hashedPassword = await bcrypt.hash(password, 10);
     });
 
     await newStudent.save();
-    res.status(201).json({ message:"Student registered successfully"});
+    res.status(201).json({message:"Student registered successfully"});
   } catch (error) {
-    res.status(500).json({ error:"Server error"});
+    res.status(500).json({error:"Server error"});
   }
 };
 
@@ -54,7 +54,8 @@ export const listStudents = async (req: Request, res: Response) => {
     const students = await StudentModel.find();
     res.json(students);
   } catch {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({error:"Server error"
+    });
   }
 };
 
