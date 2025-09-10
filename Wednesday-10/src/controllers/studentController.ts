@@ -24,7 +24,7 @@ const hashedPassword = await bcrypt.hash(password, 10);
     });
 
     await newStudent.save();
-    res.status(201).json({ message:"Student registered successfully" });
+    res.status(201).json({ message:"Student registered successfully"});
   } catch (error) {
     res.status(500).json({ error:"Server error"});
   }
@@ -33,7 +33,7 @@ const hashedPassword = await bcrypt.hash(password, 10);
 
 export const loginStudent = async (req: Request, res: Response) => {
   try {
-    const { rollno, password } = req.body;
+    const {rollno, password} = req.body;
 
     const student = await StudentModel.findOne({rollno});
     if (!student) return res.status(404).json({error:"Student not found"});
@@ -64,7 +64,8 @@ export const studentDetail = async (req: Request, res: Response) => {
     const{rollno} = req.body;
     const student = await StudentModel.findOne({rollno});
 
-    if (!student) return res.status(404).json({error: "Student not found"});
+    if (!student) 
+    return res.status(404).json({error: "Student not found"});
     res.json(student);
   } catch {
     res.status(500).json({error:"Server error"});
@@ -77,8 +78,9 @@ export const deleteStudent = async (req: Request, res: Response) => {
     const {rollno} = req.body;
     const deleted = await StudentModel.findOneAndDelete({rollno});
 
-    if (!deleted) return res.status(404).json({ error:"Student not found"});
-    res.json({ message: "Student deleted successfully" });
+    if (!deleted) 
+        return res.status(404).json({ error:"Student not found"});
+    res.json({ message:"Student deleted successfully" });
   } catch {
     res.status(500).json({ error: "Server error" });
   }
