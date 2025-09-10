@@ -36,10 +36,12 @@ export const loginStudent = async (req: Request, res: Response) => {
     const {rollno, password} = req.body;
 
     const student = await StudentModel.findOne({rollno});
-    if (!student) return res.status(404).json({error:"Student not found"});
+    if (!student)
+         return res.status(404).json({error:"Student not found"});
 
     const match = await bcrypt.compare(password, student.password);
-    if (!match) return res.status(401).json({error:"Invalid credentials"});
+    if (!match) 
+        return res.status(401).json({error:"Invalid credentials"});
 
     res.json({message: "Login successful", student });
   } catch (error) {
