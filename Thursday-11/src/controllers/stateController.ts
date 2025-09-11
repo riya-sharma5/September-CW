@@ -17,11 +17,12 @@ export const createState = async (req: Request, res: Response) => {
 };
 
 export const updateState = async (req: Request, res: Response) => {
-  const state = await stateModel.findByIdAndUpdate(req.params.id, {
+  console.log("into update state :", req.body);
+  const state = await stateModel.findByIdAndUpdate(req.body._id, {
     stateName: req.body.stateName,
-    countryId: req.body.countryId
   }, { new: true });
-  res.json(state);
+  console.log("result found :", state);
+  res.status(200).json(state);
 };
 
 export const deleteState = async (req: Request, res: Response) => {

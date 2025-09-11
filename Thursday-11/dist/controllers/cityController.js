@@ -4,10 +4,11 @@ export const getAllCities = async (req, res) => {
     res.json(cities);
 };
 export const createCity = async (req, res) => {
-    const city = new cityModel({ cityName: req.body.cityName, stateId: req.body.stateId });
+    console.log("body :", req.body);
     const exists = await cityModel.findOne({ cityName: req.body.cityName });
     if (exists)
         return res.status(400).json({ error: "city already exists" });
+    const city = new cityModel({ cityName: req.body.cityName, stateId: req.body.stateId });
     await city.save();
     res.status(201).json(city);
 };

@@ -7,14 +7,25 @@ export const getAllCountries = async (req: Request, res: Response) => {
 };
 
 export const createCountry = async (req: Request, res: Response) => {
-  const country = new countryModel({ countryName: req.body.countryName });
-  const exists = await countryModel.findOne({
-    countryName: req.body.countryName,
-  });
-  if (exists) return res.status(400).json({ error: "country already exists" });
+  try {
+    // validate body data
+
+
+    // validate db data
+    const exists = await countryModel.findOne({
+      countryName: req.body.countryName,
+    });
+    if (exists) return res.status(400).json({ message : "country already exists" });
+    // save into db
+    const country = new countryModel({ countryName: req.body.countryName });
 
   await country.save();
   res.status(201).json(country);
+  } catch (error) {
+    res.status(500).json({
+      message:"Something went wrong",
+    })
+  }
 };
 
 export const updateCountry = async (req: Request, res: Response) => {
