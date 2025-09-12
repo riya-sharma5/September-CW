@@ -1,35 +1,60 @@
 import { countryModel } from "../models/countryModels.js";
 export const getAllCountries = async (req, res) => {
-    const countries = await countryModel.find();
-    res.json(countries);
+    try {
+        const countries = await countryModel.find();
+        res.status(200).json(countries);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to fetch countries" });
+    }
 };
 export const createCountry = async (req, res) => {
-    const country = new countryModel({ countryName: req.body.countryName });
-    const exists = await countryModel.findOne({
-        countryName: req.body.countryName,
-    });
-    if (exists)
-        return res.status(400).json({ error: "country already exists" });
-    await country.save();
-    res.status(201).json(country);
+    try {
+        const { countryName } = req.body;
+        if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        const exists = await countryModel.findOne({ countryName: countryName.trim() });
+        if (exists) {
+            return res.status(400).json({ message: "Country already exists" });
+        }
+        const country = new countryModel({ countryName: countryName.trim() });
+        await country.save();
+        res.status(201).json(country);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
 };
 export const updateCountry = async (req, res) => {
-    const { countryName } = req.body;
-    const country = await countryModel.findByIdAndUpdate(req.body._id, {
-        countryName: req.body.countryName,
-    }, { new: true });
-    res.json(country);
+    try {
+        const { _id, countryName } = req.body;
+        if (!_id)
+            return res.status(400).json({ message: "_id is required" });
+        if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        const country = await countryModel.findByIdAndUpdate(_id, { countryName: countryName.trim() }, { new: true });
+        if (!country)
+            return res.status(404).json({ message: "Country not found" });
+        res.status(200).json(country);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to update country" });
+    }
 };
 export const deleteCountry = async (req, res) => {
     try {
-        const { countryName } = req.body;
-        const deleted = await countryModel.findOneAndDelete({ countryName });
+        const { _id } = req.body;
+        if (!_id)
+            return res.status(400).json({ message: "_id is required" });
+        const deleted = await countryModel.findByIdAndDelete(_id);
         if (!deleted)
-            return res.status(404).json({ error: "country not found" });
-        res.json({ message: "country deleted successfully" });
+            return res.status(404).json({ message: "Country not found" });
+        res.status(200).json({ message: "Country deleted successfully" });
     }
-    catch {
-        res.status(500).json({ error: "Server error" });
+    catch (error) {
+        res.status(500).json({ message: "Failed to delete country" });
     }
 };
 //# sourceMappingURL=countryControllers.js.map

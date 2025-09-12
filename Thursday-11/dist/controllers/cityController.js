@@ -1,34 +1,64 @@
-import { cityModel } from '../models/cityModels.js';
+import { cityModel } from "../models/cityModels.js";
 export const getAllCities = async (req, res) => {
-    const cities = await cityModel.find();
-    res.json(cities);
+    try {
+        const cities = await cityModel.find();
+        res.status(200).json(cities);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to fetch cities" });
+    }
 };
 export const createCity = async (req, res) => {
-    console.log("body :", req.body);
-    const exists = await cityModel.findOne({ cityName: req.body.cityName });
-    if (exists)
-        return res.status(400).json({ error: "city already exists" });
-    const city = new cityModel({ cityName: req.body.cityName, stateId: req.body.stateId });
-    await city.save();
-    res.status(201).json(city);
+    try {
+        const { cityName, stateId } = req.body;
+        if (!cityName || typeof cityName !== "string" || cityName.trim() === "") {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        if (!stateId) {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        const exists = await cityModel.findOne({ cityName: cityName.trim() });
+        if (exists) {
+            return res.status(400).json({ message: "City already exists" });
+        }
+        const city = new cityModel({
+            cityName: cityName.trim(),
+            stateId: stateId.trim(),
+        });
+        await city.save();
+        res.status(201).json(city);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
 };
 export const updateCity = async (req, res) => {
-    const city = await cityModel.findByIdAndUpdate(req.params.id, {
-        cityName: req.body.cityName,
-        stateId: req.body.stateId
-    }, { new: true });
-    res.json(city);
+    try {
+        const { cityName, stateId } = req.body;
+        const { id } = req.params;
+        if (!id)
+            return res.status(400).json({ message: "City ID is required" });
+        const city = await cityModel.findByIdAndUpdate(id, { cityName: cityName?.trim(), stateId: stateId?.trim() }, { new: true });
+        if (!city)
+            return res.status(404).json({ message: "City not found" });
+        res.status(200).json(city);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to update city" });
+    }
 };
 export const deleteCity = async (req, res) => {
     try {
-        const { cityName } = req.body;
-        const deleted = await cityModel.findOneAndDelete({ cityName });
+        const { id } = req.params;
+        if (!id)
+            return res.status(400).json({ message: "City ID is required" });
+        const deleted = await cityModel.findByIdAndDelete(id);
         if (!deleted)
-            return res.status(404).json({ error: "city not found" });
-        res.json({ message: "city deleted successfully" });
+            return res.status(404).json({ message: "City not found" });
+        res.status(200).json({ message: "City deleted successfully" });
     }
-    catch {
-        res.status(500).json({ error: "Server error" });
+    catch (error) {
+        res.status(500).json({ message: "Failed to delete city" });
     }
 };
 //# sourceMappingURL=cityController.js.map

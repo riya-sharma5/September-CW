@@ -1,34 +1,63 @@
-import { stateModel } from '../models/stateModels.js';
+import { stateModel } from "../models/stateModels.js";
 export const getAllStates = async (req, res) => {
-    const states = await stateModel.find();
-    res.json(states);
+    try {
+        const states = await stateModel.find();
+        res.status(200).json(states);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to fetch states" });
+    }
 };
 export const createState = async (req, res) => {
-    const state = new stateModel({ stateName: req.body.stateName, countryId: req.body.countryId });
-    const exists = await stateModel.findOne({ stateName: req.body.stateName });
-    if (exists)
-        return res.status(400).json({ error: "state already exists" });
-    await state.save();
-    res.status(201).json(state);
+    try {
+        const { stateName, countryId } = req.body;
+        if (!stateName || typeof stateName !== "string" || stateName.trim() === "") {
+            return res.status(400).json({ message: "Input" });
+        }
+        if (!countryId || typeof countryId !== "string") {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        const exists = await stateModel.findOne({ stateName: stateName.trim() });
+        if (exists) {
+            return res.status(400).json({ message: "State already exists" });
+        }
+        const state = new stateModel({ stateName: stateName.trim(), countryId: countryId.trim() });
+        await state.save();
+        res.status(201).json(state);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
 };
 export const updateState = async (req, res) => {
-    console.log("into update state :", req.body);
-    const state = await stateModel.findByIdAndUpdate(req.body._id, {
-        stateName: req.body.stateName,
-    }, { new: true });
-    console.log("result found :", state);
-    res.status(200).json(state);
+    try {
+        const { _id, stateName } = req.body;
+        if (!_id)
+            return res.status(400).json({ message: "_id is required" });
+        if (!stateName || typeof stateName !== "string" || stateName.trim() === "") {
+            return res.status(400).json({ message: "Invalid Input" });
+        }
+        const state = await stateModel.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
+        if (!state)
+            return res.status(404).json({ message: "State not found" });
+        res.status(200).json(state);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Failed to update state" });
+    }
 };
 export const deleteState = async (req, res) => {
     try {
-        const { stateName } = req.body;
-        const deleted = await stateModel.findOneAndDelete({ stateName });
+        const { id } = req.params;
+        if (!id)
+            return res.status(400).json({ message: "State ID is required" });
+        const deleted = await stateModel.findByIdAndDelete(id);
         if (!deleted)
-            return res.status(404).json({ error: "state not found" });
-        res.json({ message: "State deleted successfully" });
+            return res.status(404).json({ message: "State not found" });
+        res.status(200).json({ message: "State deleted successfully" });
     }
-    catch {
-        res.status(500).json({ error: "Server error" });
+    catch (error) {
+        res.status(500).json({ message: "Failed to delete state" });
     }
 };
 //# sourceMappingURL=stateController.js.map

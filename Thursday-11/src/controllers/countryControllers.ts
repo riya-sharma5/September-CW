@@ -2,49 +2,71 @@ import type { Request, Response } from "express";
 import { countryModel } from "../models/countryModels.js";
 
 export const getAllCountries = async (req: Request, res: Response) => {
-  const countries = await countryModel.find();
-  res.json(countries);
+  try {
+    const countries = await countryModel.find();
+    res.status(200).json(countries);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch countries" });
+  }
 };
 
 export const createCountry = async (req: Request, res: Response) => {
   try {
-    // validate body data
+    const { countryName } = req.body;
 
+    if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
+      return res.status(400).json({ message: "Invalid Input" });
+    }
 
-    // validate db data
-    const exists = await countryModel.findOne({
-      countryName: req.body.countryName,
-    });
-    if (exists) return res.status(400).json({ message : "country already exists" });
-    // save into db
-    const country = new countryModel({ countryName: req.body.countryName });
+    const exists = await countryModel.findOne({ countryName: countryName.trim() });
+    if (exists) {
+      return res.status(400).json({ message: "Country already exists" });
+    }
 
-  await country.save();
-  res.status(201).json(country);
+    const country = new countryModel({ countryName: countryName.trim() });
+    await country.save();
+
+    res.status(201).json(country);
   } catch (error) {
-    res.status(500).json({
-      message:"Something went wrong",
-    })
+    res.status(500).json({ message: "Something went wrong" });
   }
 };
 
 export const updateCountry = async (req: Request, res: Response) => {
-   const {countryName} = req.body;
-  const country = await countryModel.findByIdAndUpdate(req.body._id, {
-    countryName: req.body.countryName,
+  try {
+    const { _id, countryName } = req.body;
 
-  }, { new: true });
-  res.json(country);
+    if (!_id) return res.status(400).json({ message: "_id is required" });
+    if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
+      return res.status(400).json({ message: "Invalid Input" });
+    }
+
+    const country = await countryModel.findByIdAndUpdate(
+      _id,
+      { countryName: countryName.trim() },
+      { new: true }
+    );
+
+    if (!country) return res.status(404).json({ message: "Country not found" });
+
+    res.status(200).json(country);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update country" });
+  }
 };
 
 export const deleteCountry = async (req: Request, res: Response) => {
   try {
-    const { countryName } = req.body;
-    const deleted = await countryModel.findOneAndDelete({ countryName });
+    const { _id } = req.body;
 
-    if (!deleted) return res.status(404).json({ error: "country not found" });
-    res.json({ message: "country deleted successfully" });
-  } catch {
-    res.status(500).json({ error: "Server error" });
+    if (!_id) return res.status(400).json({ message: "_id is required" });
+
+    const deleted = await countryModel.findByIdAndDelete(_id);
+
+    if (!deleted) return res.status(404).json({ message: "Country not found" });
+
+    res.status(200).json({ message: "Country deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete country" });
   }
 };
