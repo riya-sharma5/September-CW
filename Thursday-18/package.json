@@ -1,0 +1,33 @@
+{
+  "name": "thursday-18",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TASK:- Merge both student task and country,state,city task \r    Pointers to solve:- \r    1. Using interface, collection in the mongodb \r    2. Use populate\r    3. Flow shuld be:- code\r                       message\r                       data\r    4. Dont use body parser rather use express json\r    5. Everything should be dynamic, like country, state, city (refernced and mapped)",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node dist/server.js",
+    "dev": "nodemon - exec 'ts-node' dist/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.3.1",
+    "@types/nodemon": "^1.19.6",
+    "nodemon": "^3.1.10"
+  }
+}
