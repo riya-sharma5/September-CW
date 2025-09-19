@@ -14,9 +14,7 @@ export const getAllStates = async (req: Request, res: Response) => {
 
 export const createState = async (req: Request, res: Response) => {
   try {
-    console.log("body data :",req.body)
 
-    
 
     const { stateName, countryId } = req.body;
 
@@ -80,7 +78,7 @@ export const updateState = async (req: Request, res: Response) => {
 
 export const deleteState = async (req: Request, res: Response) => {
   try {
-    console.log(req.body)
+   
     const { stateName} = req.body;
 
     if (!stateName) return res.status(400).json({ message: "State name is required" });
