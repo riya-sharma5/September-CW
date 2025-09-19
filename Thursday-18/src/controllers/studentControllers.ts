@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import * as  jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { verifyJWT } from '../middleware/jwtVerify.js';
 import * as dotenv from 'dotenv';
 import studentModel from '../models/studentmodels.js';
@@ -33,10 +33,8 @@ export const registerStudent = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
 
-    console.log(newStudent)
-
-    await newStudent.save();
-    
+await newStudent.save();
+  
 
 
     return res.status(201).json({
@@ -46,7 +44,6 @@ export const registerStudent = async (req: Request, res: Response) => {
     });
 
   } catch (err) {
-    console.log("hello")
     console.error("error registering student", err);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -54,32 +51,44 @@ export const registerStudent = async (req: Request, res: Response) => {
 
 export const loginStudent = async (req: Request, res: Response) => {
   try {
-    const { rollno, password } = req.body;
+    console.log("request in login api")
+    const { rollNo = "", password = "" } = req.body || {};
+    if(!rollNo || !password) {
+      return res.status(400).json({
+        error:"All field are required"
+      })
+    }
 
-    const student = await studentModel.findOne({ rollno });
+    const student = await studentModel.findOne({ rollNo });
     if (!student)
       return res.status(404).json({ error: 'Student not found' });
-
+    console.log("student found ", student._id);
     const match = await bcrypt.compare(password, student.password);
     if (!match)
       return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign(
-      { _id: student._id },
+      { _id: "student_id" },
       process.env.PRIVATE_KEY as string,
       {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRY as '1d' || '1d',
       }
     );
+   
+ 
+
+
+  
+  // const tokenToSave = jwt.sign({name:"Krishna"},"secret");
 
     res.status(200).json({
       code: 200,
       message: 'Login successful',
-      token,
       student,
+      token
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: ' Internal Server error' });
   }
 };
 
@@ -104,8 +113,8 @@ export const listStudents = async (req: Request, res: Response) => {
 
 export const studentDetail = async (req: Request, res: Response) => {
   try {
-    const { rollno } = req.body;
-    const student = await studentModel.findOne({ rollno });
+    const { rollNo } = req.body;
+    const student = await studentModel.findOne({ rollNo });
 
     if (!student)
       return res.status(404).json({ error: 'Student not found' });
@@ -122,9 +131,9 @@ export const studentDetail = async (req: Request, res: Response) => {
 
 export const editStudent = async (req: Request, res: Response) => {
   try {
-    const { rollno, name, collegeName, course, city, state, country } = req.body;
+    const { rollNo, name, collegeName, course, city, state, country } = req.body;
 
-    const student = await studentModel.findOne({ rollno });
+    const student = await studentModel.findOne({ rollNo });
     if (!student)
       return res.status(400).json({ error: 'Student not found' });
 

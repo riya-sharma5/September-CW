@@ -15,4 +15,3 @@ student dashboard
 
 used various methods of mongo like findOne, findOneAndDelete in the task
 performed task by express where used body parser and cors 
-
