@@ -8,7 +8,7 @@ export interface ErrorType{
 }
 
 export function errorHandler(err: ErrorType, req: Request, res: Response,  next: NextFunction) {
-    console.log("into global error handler")
+   
   console.error(err);
   res.status(500).json(err);
 }

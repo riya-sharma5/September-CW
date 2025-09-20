@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
@@ -6,9 +6,14 @@ import studentModel from "../models/studentModels.js";
 
 dotenv.config();
 
-export const registerStudent = async (req: Request, res: Response) => {
+const excludePassword = (student: any) => {
+  const obj = student.toObject();
+  delete obj.password;
+  return obj;
+};
+
+export const registerStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log("body :", req.body);
     const {
       rollno,
       name,
@@ -20,6 +25,7 @@ export const registerStudent = async (req: Request, res: Response) => {
       password,
     } = req.body;
 
+  
     if (
       !rollno ||
       !name ||
@@ -30,21 +36,31 @@ export const registerStudent = async (req: Request, res: Response) => {
       !state ||
       !password
     ) {
-      return res
-        .status(400)
-        .json({ code: 400, error: "All fields are required", data: [] });
+      return res.status(400).json({
+        code: 400,
+        message: "All fields are required",
+        data: [],
+      });
     }
 
-    const exists = await studentModel.findOne({ rollno });
-    if (exists)
-      return res
-        .status(400)
-        .json({ code: 400, error: "Student already exists", data: [] });
+    const rollNo = rollno.trim();
 
+  
+    const exists = await studentModel.findOne({ rollNo });
+    if (exists) {
+      return res.status(400).json({
+        code: 400,
+        message: "Student already exists",
+        data: [],
+      });
+    }
+
+    
     const hashedPassword = await bcrypt.hash(password, 10);
 
+  
     const newStudent = new studentModel({
-      rollNo: rollno,
+      rollNo,
       name,
       collegeName,
       course,
@@ -59,59 +75,63 @@ export const registerStudent = async (req: Request, res: Response) => {
     return res.status(201).json({
       code: 201,
       message: "Student registered successfully",
-      data: newStudent,
+      data: excludePassword(newStudent),
     });
-  } catch (err) {
-    console.error("error registering student", err);
-    return res
-      .status(500)
-      .json({ code: 500, error: "Internal Server Error", data: [] });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const loginStudent = async (req: Request, res: Response) => {
+export const loginStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log("request in login api");
     const { rollNo = "", password = "" } = req.body || {};
+
     if (!rollNo || !password) {
       return res.status(400).json({
-        error: "All field are required",
+        code: 400,
+        message: "All fields are required",
         data: [],
       });
     }
 
     const student = await studentModel.findOne({ rollNo });
-    if (!student)
-      return res.status(404).json({ code: 404, error: "Student not found" });
-    console.log("student found ", student._id);
+    if (!student) {
+      return res.status(404).json({
+        code: 404,
+        message: "Student not found",
+        data: [],
+      });
+    }
+
     const match = await bcrypt.compare(password, student.password);
-    if (!match)
-      return res
-        .status(401)
-        .json({ code: 401, error: "Invalid credentials", data: [] });
+    if (!match) {
+      return res.status(401).json({
+        code: 401,
+        message: "Invalid credentials",
+        data: [],
+      });
+    }
 
     const token = jwt.sign(
-      { _id: "student_id" },
+      { _id: student._id },
       process.env.PRIVATE_KEY as string,
       {
-        expiresIn: (process.env.ACCESS_TOKEN_EXPIRY as "1d") || "1d",
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY as '1d'|| "1d",
       }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       code: 200,
       message: "Login successful",
-      data: student,
-      token: token,
+      data: excludePassword(student),
+      token,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ code: 500, error: " Internal Server error", data: [] });
+    next(error);
   }
 };
 
-export const listStudents = async (req: Request, res: Response) => {
+export const listStudents = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const students = await studentModel
       .find()
@@ -120,49 +140,71 @@ export const listStudents = async (req: Request, res: Response) => {
       .populate("city", "name")
       .exec();
 
-    res.status(200).json({
+    const studentsWithoutPasswords = students.map(excludePassword);
+
+    return res.status(200).json({
       code: 200,
       message: "Successfully listed",
-      data: students,
+      data: studentsWithoutPasswords,
     });
-  } catch {
-    res.status(500).json({ code: 500, error: "Server error", data: [] });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const studentDetail = async (req: Request, res: Response) => {
+export const studentDetail = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { rollNo } = req.body;
+
+    if (!rollNo) {
+      return res.status(400).json({
+        code: 400,
+        message: "rollNo is required",
+        data: [],
+      });
+    }
+
     const student = await studentModel.findOne({ rollNo });
 
-    if (!student)
-      return res
-        .status(404)
-        .json({ code: 404, error: "Student not found", data: [] });
+    if (!student) {
+      return res.status(404).json({
+        code: 404,
+        message: "Student not found",
+        data: [],
+      });
+    }
 
-    res.status(200).json({
+    return res.status(200).json({
       code: 200,
       message: "Details fetched successfully",
-      data: student,
+      data: excludePassword(student),
     });
-  } catch {
-    res.status(500).json({ error: "Server error" });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const editStudent = async (req: Request, res: Response) => {
+export const editStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { rollNo, name, collegeName, course, city, state, country } =
-      req.body;
+    const { rollNo, name, collegeName, course, city, state, country } = req.body;
 
-      if(name || collegeName || course || city || state || country){
-        res.status(200).json({code: 200, message: "updating", data: []})
-      }
+    if (!rollNo) {
+      return res.status(400).json({
+        code: 400,
+        message: "rollNo is required",
+        data: [],
+      });
+    }
+
     const student = await studentModel.findOne({ rollNo });
-    if (!student)
-      return res
-        .status(400)
-        .json({ code: 400, error: "Student not found", data: [] });
+
+    if (!student) {
+      return res.status(404).json({
+        code: 404,
+        message: "Student not found",
+        data: [],
+      });
+    }
 
     if (name) student.name = name;
     if (collegeName) student.collegeName = collegeName;
@@ -176,29 +218,41 @@ export const editStudent = async (req: Request, res: Response) => {
     return res.status(200).json({
       code: 200,
       message: "Student updated successfully",
-      data: student,
+      data: excludePassword(student),
     });
-  } catch (err) {
-    return res.status(400).json({ code: 400, error: "Bad Request", data: [] });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const deleteStudent = async (req: Request, res: Response) => {
+export const deleteStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { rollno } = req.body;
-    const deleted = await studentModel.findOneAndDelete({ rollno });
+    const { rollNo } = req.body;
 
-    if (!deleted)
-      return res
-        .status(404)
-        .json({ code: 404, error: "Student not found", data: [] });
+    if (!rollNo) {
+      return res.status(400).json({
+        code: 400,
+        message: "rollNo is required",
+        data: [],
+      });
+    }
 
-    res.status(200).json({
+    const deleted = await studentModel.findOneAndDelete({ rollNo });
+
+    if (!deleted) {
+      return res.status(404).json({
+        code: 404,
+        message: "Student not found",
+        data: [],
+      });
+    }
+
+    return res.status(200).json({
       code: 200,
       message: "Student deleted successfully",
       data: [],
     });
-  } catch {
-    res.status(500).json({ code: 500, error: "Server error", data: [] });
+  } catch (error) {
+    next(error);
   }
 };
