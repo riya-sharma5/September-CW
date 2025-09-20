@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 const stateSchema = new Schema({
-    stateName: { type: String, unique: true, required: true },
+    stateName: { type: String, unique: true, lowercase: true, required: true },
     countryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "countries",

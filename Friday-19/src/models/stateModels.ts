@@ -8,7 +8,7 @@ export interface IState extends Document {
 
 const stateSchema: Schema<IState> = new Schema(
   {
-    stateName: { type: String, unique: true, required: true },
+    stateName: { type: String, unique: true, lowercase: true, required: true },
 
     countryId: {
       type: mongoose.Schema.Types.ObjectId,

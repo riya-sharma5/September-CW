@@ -1,7 +1,8 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import stateModel from "../models/stateModels.js";
 
-export const getAllStates = async (req: Request, res: Response, next: any) => {
+
+export const getAllStates = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const states = await stateModel.find()
     .populate("countryId", "countryName")
@@ -17,7 +18,7 @@ export const getAllStates = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const createState = async (req: Request, res: Response, next: any) => {
+export const createState = async (req: Request, res: Response, next: NextFunction) => {
   try {
    
 
@@ -59,7 +60,42 @@ export const createState = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const updateState = async (req: Request, res: Response, next: any) => {
+ export const stateList = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { countryId } = req.body;
+
+    if (!countryId || typeof countryId !== "string") {
+      return res.status(400).json({
+        code: 400,
+        message: "countryId is required and should be a string",
+        data: [],
+      });
+    }
+
+    const states = await stateModel
+      .find({ countryId })
+      .populate("countryId", "countryName")
+      .exec();
+
+    if (states.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: "No states found for this country",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      code: 200,
+      message: "States fetched successfully",
+      data: states,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateState = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { _id, stateName } = req.body;
 
@@ -98,19 +134,20 @@ export const updateState = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const deleteState = async (req: Request, res: Response) => {
+
+export const deleteState = async (req: Request, res: Response, next: NextFunction) => {
   try {
    
     const { stateName} = req.body;
 
     if (!stateName) return res.status(400).json({ code: 400, message: "State name is required", data: [] });
 
-    const deleted = await stateModel.findOneAndDelete(stateName);
+    const deleted = await stateModel.findOneAndDelete({stateName: stateName});
 
     if (!deleted) return res.status(404).json({ code: 404, message: "State not found", data:[] });
 
     res.status(200).json({ code: 200, message: "State deleted successfully", data: [] });
   } catch (error) {
-    res.status(500).json({ code: 500, message: "Failed to delete state", data: [] });
+     next(error)
   }
 };

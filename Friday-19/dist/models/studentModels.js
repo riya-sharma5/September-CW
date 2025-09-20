@@ -12,16 +12,19 @@ const studentSchema = new Schema({
     name: {
         type: String,
         required: true,
+        lowercase: true,
         trim: true,
     },
     collegeName: {
         type: String,
         required: true,
+        lowercase: true,
         trim: true,
     },
     course: {
         type: String,
         required: true,
+        lowercase: true,
         trim: true,
     },
     country: {

@@ -1,7 +1,7 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import countryModel  from "../models/countryModels.js";
 
-export const getAllCountries = async (req: Request, res: Response, next: any) => {
+export const getAllCountries = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const countries = await countryModel.find()
   
@@ -12,7 +12,7 @@ export const getAllCountries = async (req: Request, res: Response, next: any) =>
 };
 
 
-export const createCountry = async ( req: Request, res: Response, next: any) => {
+export const createCountry = async ( req: Request, res: Response, next: NextFunction) => {
   try {
    
     const { countryName  } = req.body;
@@ -35,7 +35,7 @@ export const createCountry = async ( req: Request, res: Response, next: any) => 
   }
 };
 
-export const updateCountry = async (req: Request, res: Response, next: any) => {
+export const updateCountry = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { _id, countryName } = req.body;
 
@@ -58,7 +58,7 @@ export const updateCountry = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const deleteCountry = async (req: Request, res: Response, next: any) => {
+export const deleteCountry = async (req: Request, res: Response, next: NextFunction) => {
   try {
     
     const { countryName } = req.body;

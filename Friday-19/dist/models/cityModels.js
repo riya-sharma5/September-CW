@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 const citySchema = new Schema({
-    cityName: { type: String, required: true, unique: true },
+    cityName: { type: String, required: true, lowercase: true, unique: true },
     stateId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "states",

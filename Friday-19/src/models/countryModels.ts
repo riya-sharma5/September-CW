@@ -6,7 +6,7 @@ export interface ICountry extends Document {
 
 const countrySchema: Schema<ICountry> = new Schema(
   {
-    countryName: { type: String, required: true, unique: true },
+    countryName: { type: String, required: true, lowercase: true, unique: true },
   },
   {
     timestamps: true,

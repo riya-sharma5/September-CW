@@ -7,7 +7,7 @@ export interface ICity extends Document {
 
 const citySchema: Schema<ICity> = new Schema(
   {
-    cityName: { type: String, required: true, unique: true },
+    cityName: { type: String, required: true, lowercase: true, unique: true },
 
     stateId: {
       type: mongoose.Schema.Types.ObjectId,
