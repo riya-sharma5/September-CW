@@ -3,15 +3,19 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     OTP: {
         type: String,
-        createdAt: { type: Date, expires: '5m', default: Date.now }
+        default: null
+    },
+    otpExpires: {
+        type: Date,
+        default: null
     },
     gender: {
         type: String,
-        required: true
+        required: true,
     },
     password: {
         type: String,

@@ -2,14 +2,16 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import userModel from "../models/userModels.js";
-import { generateOTP, sendOTP } from "../utils/otp.js";
+import { generateOTP, sendOTP } from "../utils/OTP.js";
 dotenv.config();
 if (!process.env.PRIVATE_KEY) {
     throw new Error("Missing PRIVATE_KEY in environment variables.");
 }
-const excludePassword = (user) => {
+const sanitizeUser = (user) => {
     const obj = user.toObject();
     delete obj.password;
+    delete obj.OTP;
+    delete obj.otpExpires;
     return obj;
 };
 export const registerUser = async (req, res, next) => {
@@ -22,20 +24,16 @@ export const registerUser = async (req, res, next) => {
             !country ||
             !state ||
             !password) {
-            return res.status(400).json({
-                code: 400,
-                message: "All fields are required",
-                data: [],
-            });
+            return res
+                .status(400)
+                .json({ code: 400, message: "All fields are required", data: [] });
         }
         const temail = email.trim();
         const exists = await userModel.findOne({ email: temail });
         if (exists) {
-            return res.status(400).json({
-                code: 400,
-                message: "User already exists",
-                data: [],
-            });
+            return res
+                .status(400)
+                .json({ code: 400, message: "User already exists", data: [] });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new userModel({
@@ -51,7 +49,7 @@ export const registerUser = async (req, res, next) => {
         return res.status(201).json({
             code: 201,
             message: "User registered successfully",
-            data: excludePassword(newUser),
+            data: sanitizeUser(newUser),
         });
     }
     catch (error) {
@@ -59,20 +57,24 @@ export const registerUser = async (req, res, next) => {
     }
 };
 export const generateOtp = async (req, res, next) => {
-    const email = req.body.email;
+    const { email } = req.body;
     try {
         let user = await userModel.findOne({ email });
         if (!user) {
-            user = new userModel({ email });
+            return res
+                .status(404)
+                .json({ code: 404, message: "User not found", data: [] });
         }
         const OTP = generateOTP();
+        const expiry = new Date(Date.now() + 5 * 60 * 1000);
         user.OTP = OTP;
+        user.otpExpires = expiry;
         await user.save();
-        sendOTP(email, OTP);
+        await sendOTP(email, OTP);
         return res.status(200).json({
             code: 200,
             message: "OTP sent successfully",
-            data: []
+            data: [],
         });
     }
     catch (error) {
@@ -82,37 +84,51 @@ export const generateOtp = async (req, res, next) => {
 export const verifyOTP = async (req, res, next) => {
     const { email, OTP } = req.body;
     try {
-        const otpRecord = await OTP.findOne({ email, OTP }).exec();
-        if (otpRecord) {
-            res.status(200).send('OTP verified successfully');
+        const user = await userModel.findOne({ email });
+        if (!user ||
+            user.OTP !== OTP ||
+            !user.otpExpires ||
+            user.otpExpires < new Date()) {
+            return res
+                .status(400)
+                .json({ code: 400, message: "Invalid or expired OTP", data: [] });
         }
-        else {
-            res.status(400).send('Invalid OTP');
-        }
+        user.OTP = null;
+        user.otpExpires = null;
+        await user.save();
+        return res
+            .status(200)
+            .json({ code: 200, message: "OTP verified successfully", data: [] });
     }
     catch (error) {
         next(error);
     }
 };
 export const loginUser = async (req, res, next) => {
-    const email = req.body.email;
-    const OTP = req.body.OTP;
+    const { email, OTP } = req.body;
     try {
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User not found",
-            });
+            return res.status(404).json({ code: 404, message: "User not found" });
         }
+        if (!user.OTP ||
+            user.OTP !== OTP ||
+            !user.otpExpires ||
+            user.otpExpires < new Date()) {
+            return res
+                .status(400)
+                .json({ code: 400, message: "Invalid or expired OTP" });
+        }
+        user.OTP = null;
+        user.otpExpires = null;
+        await user.save();
         const token = jwt.sign({ _id: user._id }, process.env.PRIVATE_KEY, {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d",
         });
-        await user.save();
         return res.status(200).json({
             code: 200,
             message: "Login successful",
-            data: excludePassword(user),
+            data: sanitizeUser(user),
             token,
         });
     }
@@ -128,7 +144,7 @@ export const listUsers = async (req, res, next) => {
             .populate("state", "stateName")
             .populate("city", "cityName")
             .exec();
-        const usersWithoutPasswords = users.map(excludePassword);
+        const usersWithoutPasswords = users.map(sanitizeUser);
         return res.status(200).json({
             code: 200,
             message: "Successfully listed",
@@ -143,24 +159,20 @@ export const userDetail = async (req, res, next) => {
     try {
         const { email } = req.body;
         if (!email) {
-            return res.status(400).json({
-                code: 400,
-                message: "Email is required",
-                data: [],
-            });
+            return res
+                .status(400)
+                .json({ code: 400, message: "Email is required", data: [] });
         }
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User not found",
-                data: [],
-            });
+            return res
+                .status(404)
+                .json({ code: 404, message: "User not found", data: [] });
         }
         return res.status(200).json({
             code: 200,
             message: "Details fetched successfully",
-            data: excludePassword(user),
+            data: sanitizeUser(user),
         });
     }
     catch (error) {
@@ -171,19 +183,15 @@ export const editUser = async (req, res, next) => {
     try {
         const { email, name, gender, city, state, country } = req.body;
         if (!email) {
-            return res.status(400).json({
-                code: 400,
-                message: "Email is required",
-                data: [],
-            });
+            return res
+                .status(400)
+                .json({ code: 400, message: "Email is required", data: [] });
         }
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User not found",
-                data: [],
-            });
+            return res
+                .status(404)
+                .json({ code: 404, message: "User not found", data: [] });
         }
         if (name)
             user.name = name;
@@ -199,7 +207,7 @@ export const editUser = async (req, res, next) => {
         return res.status(200).json({
             code: 200,
             message: "User updated successfully",
-            data: excludePassword(user),
+            data: sanitizeUser(user),
         });
     }
     catch (error) {
@@ -210,19 +218,15 @@ export const deleteUser = async (req, res, next) => {
     try {
         const { email } = req.body;
         if (!email) {
-            return res.status(400).json({
-                code: 400,
-                message: "Email is required",
-                data: [],
-            });
+            return res
+                .status(400)
+                .json({ code: 400, message: "Email is required", data: [] });
         }
         const deleted = await userModel.findOneAndDelete({ email });
         if (!deleted) {
-            return res.status(404).json({
-                code: 404,
-                message: "User not found",
-                data: [],
-            });
+            return res
+                .status(404)
+                .json({ code: 404, message: "User not found", data: [] });
         }
         return res.status(200).json({
             code: 200,

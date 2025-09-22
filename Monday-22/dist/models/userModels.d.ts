@@ -7,7 +7,8 @@ export interface IUser extends Document {
     country: Types.ObjectId;
     state: Types.ObjectId;
     city: Types.ObjectId;
-    OTP: string;
+    OTP?: string | null;
+    otpExpires?: Date | null;
 }
 declare const userModel: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
     _id: unknown;
