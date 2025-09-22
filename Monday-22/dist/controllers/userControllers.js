@@ -1,9 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
-import countryModel from '../models/countryModels.js';
-import cityModel from "../models/cityModels.js";
-import stateModel from "../models/stateModels.js";
 import userModel from "../models/userModels.js";
 import { generateOTP, sendOTP } from "../utils/otp.js";
 dotenv.config();
@@ -77,6 +74,21 @@ export const generateOtp = async (req, res, next) => {
             message: "OTP sent successfully",
             data: []
         });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+export const verifyOTP = async (req, res, next) => {
+    const { email, OTP } = req.body;
+    try {
+        const otpRecord = await OTP.findOne({ email, OTP }).exec();
+        if (otpRecord) {
+            res.status(200).send('OTP verified successfully');
+        }
+        else {
+            res.status(400).send('Invalid OTP');
+        }
     }
     catch (error) {
         next(error);

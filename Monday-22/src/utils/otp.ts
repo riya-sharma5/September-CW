@@ -1,13 +1,14 @@
 import crypto from 'crypto';
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 export const generateOTP = () => {
-  return crypto.randomBytes(3).toString("hex");
+  const otp = crypto.randomInt(100000, 999999); 
+  return otp.toString();
 };
 
-export const sendOTP = (email: string, OTP:string) => {
+export const sendOTP = async (email: string, OTP: string) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
       user: process.env.EMAIL_SERVICE_USER,
       pass: process.env.EMAIL_SERVICE_PASS,
@@ -17,15 +18,16 @@ export const sendOTP = (email: string, OTP:string) => {
   const mailOptions = {
     from: process.env.EMAIL_SERVICE_USER,
     to: email,
-    subject: "Your OTP",
+    subject: 'Your OTP',
     text: `Your OTP is: ${OTP}`,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: " + info.response);
-    }
-  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    return info;
+  } catch (error) {
+    console.error('Failed to send OTP email:', error);
+    throw error;
+  }
 };

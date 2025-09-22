@@ -7,6 +7,7 @@ const userSchema = new Schema({
     },
     OTP: {
         type: String,
+        createdAt: { type: Date, expires: '5m', default: Date.now }
     },
     gender: {
         type: String,
