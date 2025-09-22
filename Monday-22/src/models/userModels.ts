@@ -1,48 +1,51 @@
 import mongoose, { Document, Schema , Types } from "mongoose";
 
+export interface IUser extends Document {
 
-
-export interface IStudent extends Document {
-  rollNo: number;
   name: string;
   password: string;
-
-  collegeName: string;
-  course: string;
+  email : string, 
+  gender: string, 
   country: Types.ObjectId;
   state: Types.ObjectId;
   city: Types.ObjectId;
+  OTP: string
+
 }
 
-const studentSchema: Schema<IStudent> = new Schema(
-  {
-    rollNo: {
-      type: Number,
-      unique: true,
-      required: true,
+const userSchema: Schema<IUser> = new Schema(
+{
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
+
+    OTP:{
+      type: String,
+
+  }, 
+
+
+    gender: {
+        type: String,
+        required: true
+
+    },
+ 
     password: {
       type: String,
       required: true,
     },
+
     name: {
       type: String,
       required: true,
       lowercase: true, 
       trim: true,
     },
-    collegeName: {
-      type: String,
-      required: true,
-      lowercase: true, 
-      trim: true,
-    },
-    course: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-    },
+  
+   
     country: 
       {
         type: Schema.Types.ObjectId,
@@ -62,13 +65,14 @@ const studentSchema: Schema<IStudent> = new Schema(
         ref: "cities",
         required: true,
       },
-  },
+    },
 
   {
     timestamps: true,
-    collection: "students",
+    collection: "users",
   }
+
 );
 
-const studentModel = mongoose.model<IStudent>("students", studentSchema);
-export default studentModel;
+const userModel = mongoose.model<IUser>("users", userSchema);
+export default userModel;

@@ -1,0 +1,154 @@
+import type { Request, Response, NextFunction } from "express";
+import stateModel from "../models/stateModels.js";
+
+
+export const getAllStates = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const states = await stateModel.find()
+    .populate("countryId", "countryName")
+    .exec();
+
+   
+    res
+      .status(200)
+      .json({ code: 200, message: "got all states", data: states });
+  } catch (error) {
+    res
+      next(error)
+  }
+};
+
+export const createState = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+   
+
+    const { stateName, countryId } = req.body;
+
+    if (
+      !stateName ||
+      typeof stateName !== "string" ||
+      stateName.trim() === ""
+    ) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "state name is required!", data: [] });
+    }
+    if (!countryId || typeof countryId !== "string") {
+      return res
+        .status(400)
+        .json({ code: 400, message: "country Id is required !", data: [] });
+    }
+
+    const exists = await stateModel.findOne({ stateName: stateName.trim() });
+    
+    if (exists) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "State already exists", data: [] });
+    }
+
+    const state = new stateModel({
+      stateName: stateName.trim(),
+      countryId: countryId.trim(),
+    });
+    await state.save();
+
+    res
+      .status(201)
+      .json({ code: 201, message: "successfully created state", data: state });
+  } catch (error) {
+   next(error);
+  }
+};
+
+ export const stateList = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { countryId } = req.body;
+
+    if (!countryId || typeof countryId !== "string") {
+      return res.status(400).json({
+        code: 400,
+        message: "countryId is required and should be a string",
+        data: [],
+      });
+    }
+
+    const states = await stateModel
+      .find({ countryId })
+      .populate("countryId", "countryName")
+      .exec();
+
+    if (states.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: "No states found for this country",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      code: 200,
+      message: "States fetched successfully",
+      data: states,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateState = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { _id, stateName } = req.body;
+
+    if (!_id)
+      return res
+        .status(400)
+        .json({ code: 400, message: "_id is required", data: [] });
+    if (
+      !stateName ||
+      typeof stateName !== "string" ||
+      stateName.trim() === ""
+    ) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid Input", data: [] });
+    }
+ 
+    const state = await stateModel.findByIdAndUpdate(
+      _id,
+      { stateName: stateName.trim() },
+      { new: true }
+    );
+
+    if (!state)
+      return res
+        .status(404)
+        .json({ code: 404, message: "State not found", data: [] });
+
+    res.status(200).json({
+      code: 200,
+      message: "successfully updated the state",
+      data: state,
+    });
+  } catch (error) {
+   next(error);
+  }
+};
+
+
+export const deleteState = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+   
+    const { stateName} = req.body;
+
+    if (!stateName) return res.status(400).json({ code: 400, message: "State name is required", data: [] });
+
+    const deleted = await stateModel.findOneAndDelete({stateName: stateName});
+
+    if (!deleted) return res.status(404).json({ code: 404, message: "State not found", data:[] });
+
+    res.status(200).json({ code: 200, message: "State deleted successfully", data: [] });
+  } catch (error) {
+     next(error)
+  }
+};

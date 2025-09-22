@@ -1,0 +1,1 @@
+{"version":3,"file":"otpModels.d.ts","sourceRoot":"","sources":["../../src/models/otpModels.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,EAAE,EAAE,QAAQ,EAAiB,MAAM,UAAU,CAAC;AAG7D,MAAM,WAAW,IAAK,SAAQ,QAAQ;IACpC,GAAG,EAAE,MAAM,CAAC;IACZ,KAAK,EAAE,MAAM,CAAC;CACf;AAeD,QAAA,MAAM,UAAU;;;;OAA4C,CAAC;AAC7D,eAAe,UAAU,CAAC"}
