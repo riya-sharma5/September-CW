@@ -160,8 +160,7 @@ export const listUsers = async (
     const users = await userModel
       .find()
       .populate("country", "countryName")
-     
-      .populate("state", "stateName")
+     .populate("state", "stateName")
       .populate("city", "cityName")
       .exec();
 
