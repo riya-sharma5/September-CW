@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import { errorHandler } from "./middleware/errorHandler.js";
 dotenv.config();
 const app = express();
-const PORT = 6000;
+const PORT = 7000;
 app.use(cors());
 app.use(express.json());
 app.use("/user", userRoutes);

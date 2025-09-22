@@ -48,7 +48,7 @@ export const deleteCountry = async (req, res, next) => {
         const { countryName } = req.body;
         if (!countryName)
             return res.status(400).json({ code: 400, message: "countryName is required", data: [] });
-        const deleted = await countryModel.findOneAndDelete(countryName);
+        const deleted = await countryModel.findOneAndDelete({ countryName: countryName });
         if (!deleted)
             return res.status(404).json({ code: 404, message: "Country not found", data: [] });
         res.status(200).json({ code: 200, message: "Country deleted successfully", data: [] });
