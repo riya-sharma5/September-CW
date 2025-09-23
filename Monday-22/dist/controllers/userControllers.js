@@ -30,6 +30,10 @@ export const registerUser = async (req, res, next) => {
         }
         const temail = email.trim();
         const exists = await userModel.findOne({ email: temail });
+        // .populate("countryId", "countryName")
+        // .populate("stateId", "stateName")
+        // .populate("cityId", "cityName")
+        // .exec();
         if (exists) {
             return res
                 .status(400)
@@ -86,6 +90,7 @@ export const verifyOTP = async (req, res, next) => {
     const { email, OTP } = req.body;
     try {
         const user = await userModel.findOne({ email });
+        console.log(user);
         if (!user ||
             user.OTP !== OTP ||
             !user.otpExpires ||

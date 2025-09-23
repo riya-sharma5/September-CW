@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import *as dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 
 dotenv.config();
