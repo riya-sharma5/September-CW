@@ -1,5 +1,7 @@
 import crypto from 'crypto';
+import * as dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+dotenv.config();
 export const generateOTP = () => {
     const otp = crypto.randomInt(100000, 999999);
     return otp.toString();

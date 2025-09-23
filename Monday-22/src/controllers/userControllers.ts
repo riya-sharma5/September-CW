@@ -92,6 +92,8 @@ export const generateOtp = async (
     }
 
     const OTP = generateOTP();
+    console.log(generateOTP)
+
     const expiry = new Date(Date.now() + 5 * 60 * 1000);
 
     user.OTP = OTP;

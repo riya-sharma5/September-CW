@@ -66,6 +66,7 @@ export const generateOtp = async (req, res, next) => {
                 .json({ code: 404, message: "User not found", data: [] });
         }
         const OTP = generateOTP();
+        console.log(generateOTP);
         const expiry = new Date(Date.now() + 5 * 60 * 1000);
         user.OTP = OTP;
         user.otpExpires = expiry;
