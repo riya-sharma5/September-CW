@@ -20,11 +20,19 @@ const sanitizeUser = (user) => {
     delete obj.otpExpires;
     return obj;
 };
+if (typeof obj.gender === "number") {
+    obj.gender = genderMap[obj.gender] ?? "Unknown";
+}
+return obj;
 const tEmail = (email) => email.trim().toLowerCase();
 const isOTPValid = (user, inputOTP) => {
-    return (user.OTP === inputOTP
-        &&
-            new Date(user.otpExpires).getTime() > Date.now());
+    if (user.OTP !== inputOTP) {
+        return { valid: false, reason: "invalid" };
+    }
+    if (new Date(user.otpExpires).getTime() <= Date.now()) {
+        return { valid: false, reason: "expired" };
+    }
+    return { valid: true };
 };
 export const registerUser = async (req, res, next) => {
     try {
@@ -305,6 +313,11 @@ export const editUser = async (req, res, next) => {
     }
 };
 export const logoutUser = async (req, res, next) => {
+    return res.status(200).json({
+        code: 200,
+        message: "Logout successful",
+        data: [],
+    });
 };
 export const deleteUser = async (req, res, next) => {
     try {

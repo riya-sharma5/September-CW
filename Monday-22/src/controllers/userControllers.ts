@@ -27,15 +27,23 @@ const sanitizeUser = (user: any) => {
   return obj;
 };
 
+ if (typeof obj.gender === "number") {
+    obj.gender = genderMap[obj.gender] ?? "Unknown";
+  }
+
+  return obj;
+}
 const tEmail = (email: string) => email.trim().toLowerCase();
 
-const isOTPValid = (user: any, inputOTP: string): boolean => {
-    return (
-    user.OTP === inputOTP 
-    
-    &&
-    new Date(user.otpExpires).getTime() > Date.now()
-  );
+const isOTPValid = (user: any, inputOTP: string) => {
+   if (user.OTP !== inputOTP) {
+    return { valid: false, reason: "invalid" };
+  }
+
+  if (new Date(user.otpExpires).getTime() <= Date.now()) {
+    return { valid: false, reason: "expired" };
+  }
+return { valid: true };
 };
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -379,12 +387,14 @@ export const editUser = async (
     next(error);
   }
 };
+export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
 
-export const logoutUser = async(req: Request, res: Response, next: NextFunction)=>{
-
-
-
-}
+  return res.status(200).json({
+    code: 200,
+    message: "Logout successful",
+    data: [],
+  });
+};
 
 export const deleteUser = async (
   req: Request,
