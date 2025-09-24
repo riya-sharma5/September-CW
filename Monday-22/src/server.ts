@@ -9,6 +9,7 @@ import cityRoutes from './routes/cityRoutes.js'
  import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv"
 import { errorHandler } from "./middleware/errorHandler.js";
+import { createUserValidation } from "./middleware/validation.js";
 dotenv.config()
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.json());
  app.use("/city", cityRoutes);
 
 app.use(errorHandler);
+
 
 
 mongoose
