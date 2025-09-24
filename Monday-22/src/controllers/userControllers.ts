@@ -3,11 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import joi from 'joi';
-const {ValidationError} = joi;
-import  { createUserValidation } from '../middleware/validation.js'
-
+import { createUserValidation, changeValidation, verifyUserValidation, generateValidation, loginValidation, resetValidation, detailValidation, deleteValidation} from "../middleware/validation.js";
 import userModel from "../models/userModels.js";
+
 import { generateOTP, sendOTP } from "../utils/OTP.js";
 
 dotenv.config();
@@ -54,8 +52,9 @@ export const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    await createUserValidation.validateAsync(req.body);
+  try {  
+     await createUserValidation.validateAsync(req.body);
+ 
     const {
       email,
       name,
@@ -113,9 +112,6 @@ export const registerUser = async (
       data: sanitizeUser(newUser),
     });
   } catch (error) {
-    if(typeof ValidationError === error){
-      return res.status(400).json({code: 400, message: "missing field", data: []})
-    }
     next(error);
   }
 };
@@ -126,6 +122,7 @@ export const generateOtp = async (
   next: NextFunction
 ) => {
   try {
+    await generateValidation.validateAsync(req.body);
     const { email } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -160,13 +157,9 @@ export const verifyOTP = async (
   next: NextFunction
 ) => {
   try {
+   await verifyUserValidation.validateAsync(req.body);
     const { email, OTP } = req.body;
-    if (!email || !OTP) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Email and OTP are required", data: [] });
-    }
-
+    
     const user = await userModel.findOne({ email: tEmail(email) });
     console.log("otp in body :", OTP);
     if (!user || !isOTPValid(user, OTP)) {
@@ -193,14 +186,8 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
+    await loginValidation.validateAsync(req.body);
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "All fields are required", data: [] });
-    }
-
     const user = await userModel.findOne({ email: tEmail(email) });
 
     if (!user) {
@@ -281,22 +268,18 @@ export const resetPassword = async (
   next: NextFunction
 ) => {
   try {
-    const { email, OTP, newPassword } = req.body;
+    await resetValidation.validateAsync(req.body);
 
-    if (!email || !OTP || !newPassword) {
-      return res.status(400).json({
-        code: 400,
-        message: "Email, OTP, and new password are required",
-        data: [],
-      });
-    }
+    const { email, OTP, newPassword } = req.body;
 
     const user = await userModel.findOne({ email: tEmail(email) });
 
     if (!user || !isOTPValid(user, OTP)) {
       return res
         .status(400)
-        .json({ code: 400, message: "Invalid or expired OTP" });
+        .json({ code: 400, message: "Invalid or expired OTP",
+          data: []
+         });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -322,15 +305,8 @@ export const changePassword = async (
   next: NextFunction
 ) => {
   try {
-    const { email, oldPassword, newPassword, confirmPassword } = req.body;
-
-    if (!email || !oldPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({
-        code: 400,
-        message: "All fields are required",
-        data: [],
-      });
-    }
+    await changeValidation.validateAsync(req.body);
+    const {oldPassword, newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
@@ -340,7 +316,7 @@ export const changePassword = async (
       });
     }
 
-    const user = await userModel.findOne({ email: tEmail(email) });
+    const user = await userModel.findOne({  });
 
     if (!user) {
       return res
@@ -377,14 +353,8 @@ export const userDetail = async (
   next: NextFunction
 ) => {
   try {
+    await detailValidation.validateAsync(req.body);
     const { email } = req.body;
-
-    if (!email) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Email is required", data: [] });
-    }
-
     const user = await userModel.findOne({ email: tEmail(email) });
 
     if (!user) {
@@ -409,6 +379,7 @@ export const editUser = async (
   next: NextFunction
 ) => {
   try {
+
     const { name, gender, city, state, country, profilePhotoURL, email } =
       req.body;
 
@@ -423,7 +394,7 @@ export const editUser = async (
     if (name) user.name = name.trim();
     if (gender !== undefined) user.gender = gender;
     if (city) user.city = city.trim();
-    if(email) user.email = email;
+    if (email) user.email = email;
     if (state) user.state = state;
     if (country) user.country = country;
     if (profilePhotoURL) user.profilePictureURL = profilePhotoURL;
@@ -480,14 +451,8 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   try {
+  await deleteValidation.validateAsync(req.body);
     const { email } = req.body;
-
-    if (!email) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Email is required", data: [] });
-    }
-
     const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
 
     if (!deleted) {

@@ -9,7 +9,7 @@ import cityRoutes from './routes/cityRoutes.js'
  import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv"
 import { errorHandler } from "./middleware/errorHandler.js";
-import { createUserValidation } from "./middleware/validation.js";
+
 dotenv.config()
 
 const app = express();
