@@ -6,6 +6,8 @@ import {
   generateOtp,
   verifyOTP,
   listUsers,
+  resetPassword,
+  changePassword,
   userDetail,
   deleteUser,
   editUser,
@@ -18,7 +20,9 @@ router.post("/signup", registerUser);
 router.post("/login", loginUser);
 router.post('/otp', generateOtp);
 router.post('/verify', verifyOTP);
+router.post('/resetPass', resetPassword);
 router.use(verifyJWT);
+router.post('/changePass', changePassword)
 router.get("/list", listUsers);
 router.get("/details", userDetail);
 router.put("/edit", editUser);

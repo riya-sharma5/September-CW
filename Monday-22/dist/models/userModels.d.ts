@@ -4,11 +4,13 @@ export interface IUser extends Document {
     password: string;
     email: string;
     gender: string;
+    pincode: string;
+    profilePictureURL: string;
     country: Types.ObjectId;
     state: Types.ObjectId;
     city: Types.ObjectId;
     OTP?: string | null;
-    otpExpires?: Date | null;
+    otpExpires?: Date | string | null;
 }
 declare const userModel: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
     _id: unknown;

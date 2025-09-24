@@ -1,6 +1,6 @@
-import crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 dotenv.config();
 export const generateOTP = () => {
     const otp = crypto.randomInt(100000, 999999);
@@ -18,7 +18,7 @@ export const sendOTP = async (email, OTP) => {
         from: process.env.EMAIL_SERVICE_USER,
         to: email,
         subject: 'Your OTP',
-        text: `Your OTP is: ${OTP}`,
+        text: `your otp is: ${OTP}`,
     };
     try {
         const info = await transporter.sendMail(mailOptions);

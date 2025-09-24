@@ -9,6 +9,9 @@ const userSchema = new Schema({
         type: String,
         default: null
     },
+    profilePictureURL: {
+        type: String,
+    },
     otpExpires: {
         type: Date,
         default: null
@@ -16,6 +19,10 @@ const userSchema = new Schema({
     gender: {
         type: String,
         required: true,
+    },
+    pincode: {
+        type: String,
+        required: true
     },
     password: {
         type: String,

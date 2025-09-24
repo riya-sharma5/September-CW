@@ -5,11 +5,13 @@ export interface IUser extends Document {
   password: string;
   email: string;
   gender: string;
+  pincode: string,
+  profilePictureURL: string,
   country: Types.ObjectId;
   state: Types.ObjectId;
   city: Types.ObjectId;
-  OTP?: string | null;
-  otpExpires?: Date | null;
+  OTP?: string| null;
+  otpExpires?: Date | string|  null;
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -22,7 +24,12 @@ const userSchema: Schema<IUser> = new Schema(
 
     OTP: {
       type: String,
-      default: null
+     default: null
+    },
+
+    profilePictureURL: {
+       type: String,
+
     },
 
     otpExpires: {
@@ -34,6 +41,12 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
     },
+
+
+    pincode: {
+      type: String,
+      required: true
+    }, 
 
     password: {
       type: String,

@@ -1,14 +1,14 @@
-import crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+
 
 dotenv.config();
 
-export const generateOTP = () => {
+ export const generateOTP = () => {
   const otp = crypto.randomInt(100000, 999999); 
   return otp.toString();
 };
-
 export const sendOTP = async (email: string, OTP: string) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -22,7 +22,7 @@ export const sendOTP = async (email: string, OTP: string) => {
     from: process.env.EMAIL_SERVICE_USER,
     to: email,
     subject: 'Your OTP',
-    text: `Your OTP is: ${OTP}`,
+    text: `your otp is: ${OTP}`,
   };
 
   try {
