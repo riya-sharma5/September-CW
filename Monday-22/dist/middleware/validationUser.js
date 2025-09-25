@@ -1,7 +1,6 @@
 import Joi from 'joi';
 export const validateRequest = (schema) => {
     return (req, res, next) => {
-        console.log(req.body);
         const { error } = schema.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -13,8 +12,8 @@ export const validateRequest = (schema) => {
 };
 export const validateQuery = (schema) => {
     return (req, res, next) => {
-        console.log(req.params);
-        const { error } = schema.validate(req.params);
+        console.log(req.query);
+        const { error } = schema.validate(req.query);
         if (error) {
             return res.status(400).json({
                 error: error.details[0]?.message,

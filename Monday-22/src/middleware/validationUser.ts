@@ -5,7 +5,7 @@ import type { ObjectSchema } from 'joi';
 
 export const validateRequest = (schema: ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body)
+   
     const { error} = schema.validate(req.body);
 
     if (error) {
@@ -20,9 +20,8 @@ export const validateRequest = (schema: ObjectSchema) => {
 
 export const validateQuery = (schema: ObjectSchema) =>{
     return(req:Request, res: Response, next: NextFunction)=>{
-      console.log(req.params)
-
-    const {error} = schema.validate(req.params);
+ console.log(req.query)
+    const {error} = schema.validate( req.query);
     if(error){
         return res.status(400).json({
             error: error.details[0]?.message,
