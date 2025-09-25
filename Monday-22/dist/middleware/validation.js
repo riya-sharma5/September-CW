@@ -1,39 +1,63 @@
-import joi from 'joi';
-export const createUserValidation = joi.object({
-    name: joi.string().required(),
-    email: joi.string().email().required(),
-    password: joi.string().required(),
-    country: joi.string().required(),
-    city: joi.string().required(),
-    state: joi.string().required(),
-    pincode: joi.string().required(),
-    gender: joi.number().required()
+import Joi from 'joi';
+export const validateRequest = (schema) => {
+    return (req, res, next) => {
+        const { error } = schema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                error: error.details[0]?.message,
+            });
+        }
+        next();
+    };
+};
+export const createUserValidation = Joi.object({
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    country: Joi.string().required(),
+    profilePhotoURL: Joi.string().optional(),
+    city: Joi.string().required(),
+    state: Joi.string().required(),
+    pincode: Joi.string().required(),
+    gender: Joi.number().required()
 });
-export const generateValidation = joi.object({
-    email: joi.string().required()
+export const generateValidation = Joi.object({
+    email: Joi.string().email().required()
 });
-export const verifyUserValidation = joi.object({
-    email: joi.string().required(),
-    OTP: joi.string().required()
+export const verifyUserValidation = Joi.object({
+    email: Joi.string().email().required(),
+    otp: Joi.string().required()
 });
-export const loginValidation = joi.object({
-    email: joi.string().required(),
-    password: joi.string().required()
+export const loginValidation = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
 });
-export const resetValidation = joi.object({
-    email: joi.string().required(),
-    otp: joi.string().required(),
-    newPassword: joi.string().required()
+export const resetValidation = Joi.object({
+    email: Joi.string().email().required(),
+    otp: Joi.string().required(),
+    newPassword: Joi.string().required()
 });
-export const changeValidation = joi.object({
-    oldPassword: joi.string().required(),
-    newPassword: joi.string().required(),
-    confirmPassword: joi.string().required()
+export const changeValidation = Joi.object({
+    oldPassword: Joi.string().required(),
+    newPassword: Joi.string().required(),
+    confirmPassword: Joi.string().required()
 });
-export const detailValidation = joi.object({
-    email: joi.string().required()
+export const detailValidation = Joi.object({
+    email: Joi.string().email().required()
 });
-export const deleteValidation = joi.object({
-    email: joi.string().required()
+export const deleteValidation = Joi.object({
+    email: Joi.string().email().required()
+});
+export const editValidation = Joi.object({
+    name: Joi.string().optional(),
+    gender: Joi.number().optional(),
+    email: Joi.string().optional(),
+    city: Joi.string().optional(),
+    country: Joi.string().optional(),
+    state: Joi.string().optional(),
+    profilePhotoURL: Joi.string().optional()
+});
+export const logoutValidation = Joi.object({
+    email: Joi.string().optional()
 });
 //# sourceMappingURL=validation.js.map

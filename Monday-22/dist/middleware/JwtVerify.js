@@ -1,35 +1,30 @@
 import userModel from "../models/userModels.js";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
-import { userInfo } from "os";
 dotenv.config();
 export const verifyJWT = async (req, res, next) => {
     try {
-        console.log("inside middleware");
         const authHeader = req.headers['authorization'];
-        console.log(" header data", authHeader);
         const token = authHeader && authHeader.split(" ")[1];
-        console.log(token);
         if (!token) {
             res.status(401).json({
                 code: 401,
                 status: "failed",
-                message: "Unauthorized request",
+                message: "Unauthorized request: No token",
             });
             return;
         }
-        const decodedTokenInfo = jwt.verify(token, process.env.PRIVATE_KEY);
-        console.log("decoded info", decodedTokenInfo);
-        const user = await userModel.findById(decodedTokenInfo._id);
+        const decodedToken = jwt.verify(token, process.env.PRIVATE_KEY);
+        const user = await userModel.findById(decodedToken._id);
         if (!user) {
             res.status(401).json({
                 code: 401,
                 status: "failed",
-                message: "Unauthorized request",
+                message: "Unauthorized request: User not found",
             });
             return;
         }
-        res.locals.user = userInfo;
+        res.locals.user = user;
         next();
     }
     catch (error) {

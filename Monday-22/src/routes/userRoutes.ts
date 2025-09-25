@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createUserValidation, validateQuery, editUserValidation, validateRequest, loginUserValidation,detailUserValidation, deleteUserValidation, resetUserValidation, changeUserValidation, verifyUserValidation, generateUserValidation, listUserValidation } from "../middleware/validationUser.js";
 
 import {
   registerUser,
@@ -15,19 +16,20 @@ import {
 } from "../controllers/userControllers.js";
 import { verifyJWT } from "../middleware/JwtVerify.js";
 
+
 const router = Router();
 
-router.post("/signup", registerUser);
-router.post("/login", loginUser);
-router.post('/otp', generateOtp);
-router.post('/verify', verifyOTP);
-router.post('/resetPass', resetPassword);
+router.post("/signup", validateRequest(createUserValidation), registerUser);
+router.post("/login", validateRequest(loginUserValidation), loginUser);
+router.post('/otp', validateRequest(generateUserValidation), generateOtp);
+router.post('/verify', validateRequest(verifyUserValidation), verifyOTP);
+router.post('/resetPass', validateRequest(resetUserValidation), resetPassword);
 router.use(verifyJWT);
-router.post('/changePass', changePassword)
-router.get("/list", listUsers);
-router.get("/details", userDetail);
-router.put("/edit", editUser);
+router.post('/changePass', validateRequest(changeUserValidation), changePassword)
+router.get("/list", validateQuery(listUserValidation), listUsers);
+router.get("/details", validateRequest(detailUserValidation), userDetail);
+router.put("/edit", validateRequest(editUserValidation), editUser);
 router.post('/logout', logoutUser);
-router.delete("/delete", deleteUser);
+router.delete("/delete", validateRequest(deleteUserValidation), deleteUser);
 
 export default router;

@@ -1,39 +1,58 @@
 import type { Request, Response, NextFunction } from "express";
 import cityModel from "../models/cityModels.js";
+import {
+  listCityValidation,
+  getAllCitiesValidation,
+  createCityValidation,
+  updateCityValidation,
+  deleteCityValidation,
+} from "../utils/validationCity.js";
 
-
-export const getAllCities = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllCities = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const cities = await cityModel
-      .find()
-      .populate("stateId", "stateName")
-      .exec();
+    await getAllCitiesValidation.validateAsync(req.params);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const [cities, totalcities] = await Promise.all([
+      cityModel
+        .find()
+        .populate("countryId", "countryName")
+        .populate("stateId", "stateName")
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      cityModel.countDocuments(),
+    ]);
 
     res.status(200).json({
       code: 200,
-      message: "Successfully fetched all cities",
+      message: "got all states",
       data: cities,
+      pagination: {
+        total: totalcities,
+        page,
+        limit,
+        totalPages: Math.ceil(totalcities / limit),
+      },
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const createCity = async (req: Request, res: Response, next: NextFunction) => {
+export const createCity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
+    await createCityValidation.validateAsync(req.body);
     const { cityName, stateId } = req.body;
-
-    if (!cityName || typeof cityName !== "string" || cityName.trim() === "") {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Invalid cityName input", data: [] });
-    }
-
-    if (!stateId || typeof stateId !== "string") {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Invalid stateId input", data: [] });
-    }
 
     const exists = await cityModel.findOne({
       cityName: cityName.trim(),
@@ -41,13 +60,11 @@ export const createCity = async (req: Request, res: Response, next: NextFunction
     });
 
     if (exists) {
-      return res
-        .status(400)
-        .json({
-          code: 400,
-          message: "City already exists in this state",
-          data: [],
-        });
+      return res.status(400).json({
+        code: 400,
+        message: "City already exists in this state",
+        data: [],
+      });
     }
 
     const city = new cityModel({
@@ -67,25 +84,21 @@ export const createCity = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export const cityList = async (req: Request, res: Response, next: NextFunction) => {
+export const cityList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
+    await listCityValidation.validateAsync(req.body);
     const { stateId, countryId } = req.body;
-
-    if (!stateId || !countryId) {
-      return res.status(400).json({
-        code: 400,
-        error: "stateId and countryId are required",
-        data: [],
-      });
-    }
-
     const cities = await cityModel
       .find({ stateId, countryId })
       .populate("stateId", "stateName")
       .populate("countryId", "countryName")
       .exec();
 
-       if (cities.length === 0) {
+    if (cities.length === 0) {
       return res.status(404).json({
         code: 404,
         message: "No cities found for this state and country",
@@ -103,22 +116,14 @@ export const cityList = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const updateCity = async (req: Request, res: Response, next: NextFunction) => {
+export const updateCity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
+    await updateCityValidation.validateAsync(req.body);
     const { _id, cityName } = req.body;
-
-    if (!_id) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "_id is required", data: [] });
-    }
-
-    if (!cityName || typeof cityName !== "string" || cityName.trim() === "") {
-      return res
-        .status(400)
-        .json({ code: 400, message: "Invalid cityName input", data: [] });
-    }
-
     const updatedCity = await cityModel.findByIdAndUpdate(
       _id,
       { cityName: cityName.trim() },
@@ -141,17 +146,14 @@ export const updateCity = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-
-export const deleteCity = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteCity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
+    await deleteCityValidation.validateAsync(req.body);
     const { cityName } = req.body;
-
-    if (!cityName || typeof cityName !== "string") {
-      return res
-        .status(400)
-        .json({ code: 400, message: "City name is required", data: [] });
-    }
-
     const deleted = await cityModel.findOneAndDelete({
       cityName: cityName.trim(),
     });

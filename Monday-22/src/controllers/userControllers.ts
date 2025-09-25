@@ -3,7 +3,18 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import { createUserValidation, changeValidation, verifyUserValidation, generateValidation, loginValidation, resetValidation, detailValidation, deleteValidation} from "../middleware/validation.js";
+import {
+  createUserValidation,
+  changeUserValidation,
+  verifyUserValidation,
+  generateUserValidation,
+  loginUserValidation,
+  resetUserValidation,
+  detailUserValidation,
+  deleteUserValidation,
+  editUserValidation,
+  listUserValidation,
+} from "../middleware/validationUser.js";
 import userModel from "../models/userModels.js";
 
 import { generateOTP, sendOTP } from "../utils/OTP.js";
@@ -52,9 +63,9 @@ export const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {  
-     await createUserValidation.validateAsync(req.body);
- 
+  try {
+    await createUserValidation.validateAsync(req.body);
+
     const {
       email,
       name,
@@ -82,7 +93,7 @@ export const registerUser = async (
         .json({ code: 400, message: "Invalid gender value", data: [] });
     }
 
-    const exists = await userModel.findOne({ email: temail });
+    const exists = await userModel.findOne({ email: temail })
 
     if (exists) {
       return res
@@ -122,7 +133,7 @@ export const generateOtp = async (
   next: NextFunction
 ) => {
   try {
-    await generateValidation.validateAsync(req.body);
+    await generateUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -157,9 +168,9 @@ export const verifyOTP = async (
   next: NextFunction
 ) => {
   try {
-   await verifyUserValidation.validateAsync(req.body);
+    await verifyUserValidation.validateAsync(req.body);
     const { email, OTP } = req.body;
-    
+
     const user = await userModel.findOne({ email: tEmail(email) });
     console.log("otp in body :", OTP);
     if (!user || !isOTPValid(user, OTP)) {
@@ -186,7 +197,7 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    await loginValidation.validateAsync(req.body);
+    await loginUserValidation.validateAsync(req.body);
     const { email, password } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -228,6 +239,7 @@ export const listUsers = async (
   next: NextFunction
 ) => {
   try {
+    await listUserValidation.validateAsync(req.params);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
@@ -268,7 +280,7 @@ export const resetPassword = async (
   next: NextFunction
 ) => {
   try {
-    await resetValidation.validateAsync(req.body);
+    await resetUserValidation.validateAsync(req.body);
 
     const { email, OTP, newPassword } = req.body;
 
@@ -277,9 +289,7 @@ export const resetPassword = async (
     if (!user || !isOTPValid(user, OTP)) {
       return res
         .status(400)
-        .json({ code: 400, message: "Invalid or expired OTP",
-          data: []
-         });
+        .json({ code: 400, message: "Invalid or expired OTP", data: [] });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -305,8 +315,8 @@ export const changePassword = async (
   next: NextFunction
 ) => {
   try {
-    await changeValidation.validateAsync(req.body);
-    const {oldPassword, newPassword, confirmPassword } = req.body;
+    await changeUserValidation.validateAsync(req.body);
+    const { oldPassword, newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
@@ -316,25 +326,30 @@ export const changePassword = async (
       });
     }
 
-    const user = await userModel.findOne({  });
+    const userId = res.locals.user?._id;
+
+    const user = await userModel.findById(userId);
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ code: 404, message: "User not found", data: [] });
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+        data: [],
+      });
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({ code: 401, message: "Incorrect old password", data: [] });
+      return res.status(401).json({
+        code: 401,
+        message: "Incorrect old password",
+        data: [],
+      });
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
-
     await user.save();
 
     return res.status(200).json({
@@ -353,7 +368,7 @@ export const userDetail = async (
   next: NextFunction
 ) => {
   try {
-    await detailValidation.validateAsync(req.body);
+    await detailUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -379,7 +394,7 @@ export const editUser = async (
   next: NextFunction
 ) => {
   try {
-
+    await editUserValidation.validateAsync(req.body);
     const { name, gender, city, state, country, profilePhotoURL, email } =
       req.body;
 
@@ -417,12 +432,20 @@ export const logoutUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email } = req.body;
-    const user = await userModel.findOne({ email: tEmail(email) });
+    const userId = res.locals.user?._id;
+
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+        data: [],
+      });
+    }
 
     if (user) {
       await userModel.findOneAndUpdate(
-        { email },
         {
           $set: {
             token: null,
@@ -451,7 +474,7 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   try {
-  await deleteValidation.validateAsync(req.body);
+    await deleteUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
 

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import { createUserValidation, changeValidation, verifyUserValidation, generateValidation, loginValidation, resetValidation, detailValidation, deleteValidation } from "../middleware/validation.js";
+import { createUserValidation, changeUserValidation, verifyUserValidation, generateUserValidation, loginUserValidation, resetUserValidation, detailUserValidation, deleteUserValidation, editUserValidation, listUserValidation, } from "../middleware/validationUser.js";
 import userModel from "../models/userModels.js";
 import { generateOTP, sendOTP } from "../utils/OTP.js";
 dotenv.config();
@@ -81,7 +81,7 @@ export const registerUser = async (req, res, next) => {
 };
 export const generateOtp = async (req, res, next) => {
     try {
-        await generateValidation.validateAsync(req.body);
+        await generateUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -129,7 +129,7 @@ export const verifyOTP = async (req, res, next) => {
 };
 export const loginUser = async (req, res, next) => {
     try {
-        await loginValidation.validateAsync(req.body);
+        await loginUserValidation.validateAsync(req.body);
         const { email, password } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -158,6 +158,7 @@ export const loginUser = async (req, res, next) => {
 };
 export const listUsers = async (req, res, next) => {
     try {
+        await listUserValidation.validateAsync(req.params);
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
@@ -191,15 +192,13 @@ export const listUsers = async (req, res, next) => {
 };
 export const resetPassword = async (req, res, next) => {
     try {
-        await resetValidation.validateAsync(req.body);
+        await resetUserValidation.validateAsync(req.body);
         const { email, OTP, newPassword } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user || !isOTPValid(user, OTP)) {
             return res
                 .status(400)
-                .json({ code: 400, message: "Invalid or expired OTP",
-                data: []
-            });
+                .json({ code: 400, message: "Invalid or expired OTP", data: [] });
         }
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
@@ -218,7 +217,7 @@ export const resetPassword = async (req, res, next) => {
 };
 export const changePassword = async (req, res, next) => {
     try {
-        await changeValidation.validateAsync(req.body);
+        await changeUserValidation.validateAsync(req.body);
         const { oldPassword, newPassword, confirmPassword } = req.body;
         if (newPassword !== confirmPassword) {
             return res.status(400).json({
@@ -227,17 +226,22 @@ export const changePassword = async (req, res, next) => {
                 data: [],
             });
         }
-        const user = await userModel.findOne({});
+        const userId = res.locals.user?._id;
+        const user = await userModel.findById(userId);
         if (!user) {
-            return res
-                .status(404)
-                .json({ code: 404, message: "User not found", data: [] });
+            return res.status(404).json({
+                code: 404,
+                message: "User not found",
+                data: [],
+            });
         }
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
-            return res
-                .status(401)
-                .json({ code: 401, message: "Incorrect old password", data: [] });
+            return res.status(401).json({
+                code: 401,
+                message: "Incorrect old password",
+                data: [],
+            });
         }
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedNewPassword;
@@ -254,7 +258,7 @@ export const changePassword = async (req, res, next) => {
 };
 export const userDetail = async (req, res, next) => {
     try {
-        await detailValidation.validateAsync(req.body);
+        await detailUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -274,6 +278,7 @@ export const userDetail = async (req, res, next) => {
 };
 export const editUser = async (req, res, next) => {
     try {
+        await editUserValidation.validateAsync(req.body);
         const { name, gender, city, state, country, profilePhotoURL, email } = req.body;
         const user = await userModel.findOne({});
         if (!user) {
@@ -308,10 +313,17 @@ export const editUser = async (req, res, next) => {
 };
 export const logoutUser = async (req, res, next) => {
     try {
-        const { email } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const userId = res.locals.user?._id;
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                code: 404,
+                message: "User not found",
+                data: [],
+            });
+        }
         if (user) {
-            await userModel.findOneAndUpdate({ email }, {
+            await userModel.findOneAndUpdate({
                 $set: {
                     token: null,
                 },
@@ -334,7 +346,7 @@ export const logoutUser = async (req, res, next) => {
 };
 export const deleteUser = async (req, res, next) => {
     try {
-        await deleteValidation.validateAsync(req.body);
+        await deleteUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
         if (!deleted) {

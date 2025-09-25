@@ -1,12 +1,31 @@
 import stateModel from "../models/stateModels.js";
+import { createStateValidation, listStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation } from "../utils/validationState.js";
 export const getAllStates = async (req, res, next) => {
     try {
-        const states = await stateModel.find()
-            .populate("countryId", "countryName")
-            .exec();
-        res
-            .status(200)
-            .json({ code: 200, message: "got all states", data: states });
+        await getAllStatesValidation.validateAsync(req.params);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const [states, totalstates] = await Promise.all([
+            stateModel
+                .find()
+                .populate("countryId", "countryName")
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            stateModel.countDocuments(),
+        ]);
+        res.status(200).json({
+            code: 200,
+            message: "got all states",
+            data: states,
+            pagination: {
+                total: totalstates,
+                page,
+                limit,
+                totalPages: Math.ceil(totalstates / limit),
+            },
+        });
     }
     catch (error) {
         res;
@@ -15,19 +34,8 @@ export const getAllStates = async (req, res, next) => {
 };
 export const createState = async (req, res, next) => {
     try {
+        await createStateValidation.validateAsync(req.body);
         const { stateName, countryId } = req.body;
-        if (!stateName ||
-            typeof stateName !== "string" ||
-            stateName.trim() === "") {
-            return res
-                .status(400)
-                .json({ code: 400, message: "state name is required!", data: [] });
-        }
-        if (!countryId || typeof countryId !== "string") {
-            return res
-                .status(400)
-                .json({ code: 400, message: "country Id is required !", data: [] });
-        }
         const exists = await stateModel.findOne({ stateName: stateName.trim() });
         if (exists) {
             return res
@@ -49,14 +57,8 @@ export const createState = async (req, res, next) => {
 };
 export const stateList = async (req, res, next) => {
     try {
+        await listStateValidation.validateAsync(req.body);
         const { countryId } = req.body;
-        if (!countryId || typeof countryId !== "string") {
-            return res.status(400).json({
-                code: 400,
-                message: "countryId is required and should be a string",
-                data: [],
-            });
-        }
         const states = await stateModel
             .find({ countryId })
             .populate("countryId", "countryName")
@@ -80,18 +82,8 @@ export const stateList = async (req, res, next) => {
 };
 export const updateState = async (req, res, next) => {
     try {
+        await updateStateValidation.validateAsync(req.body);
         const { _id, stateName } = req.body;
-        if (!_id)
-            return res
-                .status(400)
-                .json({ code: 400, message: "_id is required", data: [] });
-        if (!stateName ||
-            typeof stateName !== "string" ||
-            stateName.trim() === "") {
-            return res
-                .status(400)
-                .json({ code: 400, message: "Invalid Input", data: [] });
-        }
         const state = await stateModel.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
         if (!state)
             return res
@@ -109,13 +101,16 @@ export const updateState = async (req, res, next) => {
 };
 export const deleteState = async (req, res, next) => {
     try {
+        await deleteStateValidation.validateAsync(req.body);
         const { stateName } = req.body;
-        if (!stateName)
-            return res.status(400).json({ code: 400, message: "State name is required", data: [] });
         const deleted = await stateModel.findOneAndDelete({ stateName: stateName });
         if (!deleted)
-            return res.status(404).json({ code: 404, message: "State not found", data: [] });
-        res.status(200).json({ code: 200, message: "State deleted successfully", data: [] });
+            return res
+                .status(404)
+                .json({ code: 404, message: "State not found", data: [] });
+        res
+            .status(200)
+            .json({ code: 200, message: "State deleted successfully", data: [] });
     }
     catch (error) {
         next(error);

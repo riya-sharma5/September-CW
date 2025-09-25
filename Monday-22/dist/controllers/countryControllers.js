@@ -1,8 +1,26 @@
 import countryModel from "../models/countryModels.js";
+import { createCountryValidation, updateCountryValidation, deleteCountryValidation, listCountryValidation } from "../utils/validationCountry.js";
 export const getAllCountries = async (req, res, next) => {
     try {
-        const countries = await countryModel.find();
-        res.status(200).json({ code: 200, message: "got all countries", data: countries });
+        await listCountryValidation.validateAsync(req.params);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const [countries, totalcountries] = await Promise.all([
+            countryModel.find().skip(skip).limit(limit).exec(),
+            countryModel.countDocuments(),
+        ]);
+        res.status(200).json({
+            code: 200,
+            message: "got all countries",
+            data: countries,
+            pagination: {
+                total: totalcountries,
+                page,
+                limit,
+                totalPages: Math.ceil(totalcountries / limit),
+            },
+        });
     }
     catch (error) {
         next(error);
@@ -10,17 +28,25 @@ export const getAllCountries = async (req, res, next) => {
 };
 export const createCountry = async (req, res, next) => {
     try {
+        await createCountryValidation.validateAsync(req.body);
         const { countryName } = req.body;
-        if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
-            return res.status(400).json({ code: 400, message: "Invalid Input", data: [] });
-        }
-        const exists = await countryModel.findOne({ countryName: countryName.trim() });
+        const exists = await countryModel.findOne({
+            countryName: countryName.trim(),
+        });
         if (exists) {
-            return res.status(400).json({ code: 400, message: "Country already exists", data: [] });
+            return res
+                .status(400)
+                .json({ code: 400, message: "Country already exists", data: [] });
         }
         const country = new countryModel({ countryName: countryName.trim() });
         await country.save();
-        res.status(201).json({ code: 201, message: "successfulluy created the country", data: country });
+        res
+            .status(201)
+            .json({
+            code: 201,
+            message: "successfulluy created the country",
+            data: country,
+        });
     }
     catch (error) {
         next(error);
@@ -28,16 +54,20 @@ export const createCountry = async (req, res, next) => {
 };
 export const updateCountry = async (req, res, next) => {
     try {
+        await updateCountryValidation.validateAsync(req.body);
         const { _id, countryName } = req.body;
-        if (!_id)
-            return res.status(400).json({ code: 400, message: "_id is required", data: [] });
-        if (!countryName || typeof countryName !== "string" || countryName.trim() === "") {
-            return res.status(400).json({ code: 400, message: "Invalid Input", data: [] });
-        }
         const country = await countryModel.findByIdAndUpdate(_id, { countryName: countryName.trim() }, { new: true });
         if (!country)
-            return res.status(404).json({ code: 404, message: "Country not found", data: [] });
-        res.status(200).json({ code: 200, message: "successfully updated the country", data: country });
+            return res
+                .status(404)
+                .json({ code: 404, message: "Country not found", data: [] });
+        res
+            .status(200)
+            .json({
+            code: 200,
+            message: "successfully updated the country",
+            data: country,
+        });
     }
     catch (error) {
         next(error);
@@ -45,13 +75,18 @@ export const updateCountry = async (req, res, next) => {
 };
 export const deleteCountry = async (req, res, next) => {
     try {
+        await deleteCountryValidation.validateAsync(req.body);
         const { countryName } = req.body;
-        if (!countryName)
-            return res.status(400).json({ code: 400, message: "countryName is required", data: [] });
-        const deleted = await countryModel.findOneAndDelete({ countryName: countryName });
+        const deleted = await countryModel.findOneAndDelete({
+            countryName: countryName,
+        });
         if (!deleted)
-            return res.status(404).json({ code: 404, message: "Country not found", data: [] });
-        res.status(200).json({ code: 200, message: "Country deleted successfully", data: [] });
+            return res
+                .status(404)
+                .json({ code: 404, message: "Country not found", data: [] });
+        res
+            .status(200)
+            .json({ code: 200, message: "Country deleted successfully", data: [] });
     }
     catch (error) {
         next(error);

@@ -1,4 +1,6 @@
 import express from 'express';
+import {  createStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation, listStateValidation } from '../utils/validationState.js';
+import { validateRequest, validateQuery } from '../middleware/validationUser.js';
 import {
   getAllStates,
   createState,
@@ -10,11 +12,11 @@ import {
 
 const router = express.Router();
 
-router.get('/all', getAllStates);
-router.post('/create', createState);
-router.get('/List', stateList)
-router.put('/update', updateState);
-router.delete('/delete', deleteState);
+router.get('/all', validateQuery(getAllStatesValidation), getAllStates);
+router.post('/create', validateRequest(createStateValidation), createState);
+router.get('/List', validateRequest(listStateValidation), stateList)
+router.put('/update', validateRequest(updateStateValidation), updateState);
+router.delete('/delete', validateRequest(deleteStateValidation), deleteState);
 
 
 
