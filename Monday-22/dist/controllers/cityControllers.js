@@ -2,29 +2,29 @@ import cityModel from "../models/cityModels.js";
 import { listCityValidation, getAllCitiesValidation, createCityValidation, updateCityValidation, deleteCityValidation, } from "../utils/validationCity.js";
 export const getAllCities = async (req, res, next) => {
     try {
-        await getAllCitiesValidation.validateAsync(req.params);
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const [cities, totalcities] = await Promise.all([
-            cityModel
-                .find()
-                .populate("countryId", "countryName")
-                .populate("stateId", "stateName")
-                .skip(skip)
-                .limit(limit)
-                .exec(),
-            cityModel.countDocuments(),
+        const result = await cityModel.aggregate([
+            {
+                $facet: {
+                    data: [{ $skip: skip }, { $limit: limit }],
+                    total: [{ $count: "totalCities" }],
+                },
+            },
         ]);
+        const data = result[0].data;
+        const total = result[0].total[0]?.totalCities || 0;
+        const totalPages = Math.ceil(total / limit);
         res.status(200).json({
             code: 200,
-            message: "got all states",
-            data: cities,
+            message: "Got all cities",
+            data,
             pagination: {
-                total: totalcities,
-                page,
-                limit,
-                totalPages: Math.ceil(totalcities / limit),
+                totalCities: total,
+                totalPages,
+                currentPage: page,
+                pageSize: limit,
             },
         });
     }

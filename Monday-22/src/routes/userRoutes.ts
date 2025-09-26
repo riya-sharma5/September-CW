@@ -6,7 +6,7 @@ import {
   loginUser,
   generateOtp,
   verifyOTP,
-  listUsers,
+  getAllUsers,
   resetPassword,
   changePassword,
   userDetail,
@@ -26,7 +26,7 @@ router.post('/verify', validateRequest(verifyUserValidation), verifyOTP);
 router.post('/resetPass', validateRequest(resetUserValidation), resetPassword);
 router.use(verifyJWT);
 router.post('/changePass', validateRequest(changeUserValidation), changePassword)
-router.get("/list", validateQuery(listUserValidation), listUsers);
+router.get("/list", validateQuery(listUserValidation), getAllUsers);
 router.get("/details", validateRequest(detailUserValidation), userDetail);
 router.put("/edit", validateRequest(editUserValidation), editUser);
 router.post('/logout', logoutUser);

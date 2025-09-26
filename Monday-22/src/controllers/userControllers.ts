@@ -233,46 +233,45 @@ export const loginUser = async (
   }
 };
 
-export const listUsers = async (
+export const getAllUsers = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    await listUserValidation.validateAsync(req.params);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const [users, totalUsers] = await Promise.all([
-      userModel
-        .find()
-        .populate("country", "countryName")
-        .populate("state", "stateName")
-        .populate("city", "cityName")
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      userModel.countDocuments(),
+    const result = await userModel.aggregate([
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          total: [{ $count: "totalUsers" }],
+        },
+      },
     ]);
 
-    const usersWithoutPasswords = users.map(sanitizeUser);
+    const data = result[0].data;
+    const total = result[0].total[0]?.totalUsers || 0;
+    const totalPages = Math.ceil(total / limit);
 
-    return res.status(200).json({
+    res.status(200).json({
       code: 200,
-      message: "Successfully listed",
-      data: usersWithoutPasswords,
+      message: "Got all users",
+      data,
       pagination: {
-        total: totalUsers,
-        page,
-        limit,
-        totalPages: Math.ceil(totalUsers / limit),
+        totalUsers: total,
+        totalPages,
+        currentPage: page,
+        pageSize: limit,
       },
     });
   } catch (error) {
     next(error);
   }
 };
+
 
 export const resetPassword = async (
   req: Request,

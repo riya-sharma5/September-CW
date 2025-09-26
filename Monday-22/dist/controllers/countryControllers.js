@@ -1,24 +1,33 @@
 import countryModel from "../models/countryModels.js";
-import { createCountryValidation, updateCountryValidation, deleteCountryValidation, listCountryValidation } from "../utils/validationCountry.js";
+import { createCountryValidation, updateCountryValidation, deleteCountryValidation, listCountryValidation, } from "../utils/validationCountry.js";
 export const getAllCountries = async (req, res, next) => {
     try {
-        await listCountryValidation.validateAsync(req.params);
+        console.log("into country list api");
+        const { page: pageNo, limit: limitNo } = req.query;
+        console.log("page no :", pageNo, "limit no :", limitNo);
+        console.log("query :::", req.query);
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const [countries, totalcountries] = await Promise.all([
-            countryModel.find().skip(skip).limit(limit).exec(),
-            countryModel.countDocuments(),
+        const result = await countryModel.aggregate([
+            {
+                $facet: {
+                    data: [{ $skip: skip }, { $limit: limit }],
+                    total: [{ $count: "totalCountries" }],
+                },
+            },
         ]);
+        let data = result?.[0]?.data ?? [];
+        let total = result?.[0]?.total?.[0]?.totalCountries ?? 0;
         res.status(200).json({
             code: 200,
-            message: "got all countries",
-            data: countries,
+            message: "Got all countries",
+            data,
             pagination: {
-                total: totalcountries,
-                page,
-                limit,
-                totalPages: Math.ceil(totalcountries / limit),
+                totalCountries: total,
+                totalPages: Math.ceil(total / limit),
+                currentPage: page,
+                pageSize: limit,
             },
         });
     }
@@ -40,9 +49,7 @@ export const createCountry = async (req, res, next) => {
         }
         const country = new countryModel({ countryName: countryName.trim() });
         await country.save();
-        res
-            .status(201)
-            .json({
+        res.status(201).json({
             code: 201,
             message: "successfulluy created the country",
             data: country,
@@ -61,9 +68,7 @@ export const updateCountry = async (req, res, next) => {
             return res
                 .status(404)
                 .json({ code: 404, message: "Country not found", data: [] });
-        res
-            .status(200)
-            .json({
+        res.status(200).json({
             code: 200,
             message: "successfully updated the country",
             data: country,

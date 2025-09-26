@@ -2,33 +2,33 @@ import stateModel from "../models/stateModels.js";
 import { createStateValidation, listStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation } from "../utils/validationState.js";
 export const getAllStates = async (req, res, next) => {
     try {
-        await getAllStatesValidation.validateAsync(req.params);
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const [states, totalstates] = await Promise.all([
-            stateModel
-                .find()
-                .populate("countryId", "countryName")
-                .skip(skip)
-                .limit(limit)
-                .exec(),
-            stateModel.countDocuments(),
+        const result = await stateModel.aggregate([
+            {
+                $facet: {
+                    data: [{ $skip: skip }, { $limit: limit }],
+                    total: [{ $count: "totalStates" }],
+                },
+            },
         ]);
+        const data = result[0].data;
+        const total = result[0].total[0]?.totalStates || 0;
+        const totalPages = Math.ceil(total / limit);
         res.status(200).json({
             code: 200,
-            message: "got all states",
-            data: states,
+            message: "Got all states",
+            data,
             pagination: {
-                total: totalstates,
-                page,
-                limit,
-                totalPages: Math.ceil(totalstates / limit),
+                totalStates: total,
+                totalPages,
+                currentPage: page,
+                pageSize: limit,
             },
         });
     }
     catch (error) {
-        res;
         next(error);
     }
 };
