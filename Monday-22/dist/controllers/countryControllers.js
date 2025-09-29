@@ -1,5 +1,4 @@
 import countryModel from "../models/countryModels.js";
-import { createCountryValidation, updateCountryValidation, deleteCountryValidation, listCountryValidation, } from "../utils/validationCountry.js";
 export const getAllCountries = async (req, res, next) => {
     try {
         console.log("into country list api");
@@ -37,7 +36,6 @@ export const getAllCountries = async (req, res, next) => {
 };
 export const createCountry = async (req, res, next) => {
     try {
-        await createCountryValidation.validateAsync(req.body);
         const { countryName } = req.body;
         const exists = await countryModel.findOne({
             countryName: countryName.trim(),
@@ -61,7 +59,6 @@ export const createCountry = async (req, res, next) => {
 };
 export const updateCountry = async (req, res, next) => {
     try {
-        await updateCountryValidation.validateAsync(req.body);
         const { _id, countryName } = req.body;
         const country = await countryModel.findByIdAndUpdate(_id, { countryName: countryName.trim() }, { new: true });
         if (!country)
@@ -80,7 +77,6 @@ export const updateCountry = async (req, res, next) => {
 };
 export const deleteCountry = async (req, res, next) => {
     try {
-        await deleteCountryValidation.validateAsync(req.body);
         const { countryName } = req.body;
         const deleted = await countryModel.findOneAndDelete({
             countryName: countryName,

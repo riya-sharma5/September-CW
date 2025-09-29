@@ -1,12 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import cityModel from "../models/cityModels.js";
-import {
-  listCityValidation,
-  getAllCitiesValidation,
-  createCityValidation,
-  updateCityValidation,
-  deleteCityValidation,
-} from "../utils/validationCity.js";
+
 export const getAllCities = async (
   req: Request,
   res: Response,
@@ -52,7 +46,6 @@ export const createCity = async (
   next: NextFunction
 ) => {
   try {
-    await createCityValidation.validateAsync(req.body);
     const { cityName, stateId } = req.body;
 
     const exists = await cityModel.findOne({
@@ -91,7 +84,6 @@ export const cityList = async (
   next: NextFunction
 ) => {
   try {
-    await listCityValidation.validateAsync(req.body);
     const { stateId, countryId } = req.body;
     const cities = await cityModel
       .find({ stateId, countryId })
@@ -123,7 +115,6 @@ export const updateCity = async (
   next: NextFunction
 ) => {
   try {
-    await updateCityValidation.validateAsync(req.body);
     const { _id, cityName } = req.body;
     const updatedCity = await cityModel.findByIdAndUpdate(
       _id,
@@ -153,7 +144,6 @@ export const deleteCity = async (
   next: NextFunction
 ) => {
   try {
-    await deleteCityValidation.validateAsync(req.body);
     const { cityName } = req.body;
     const deleted = await cityModel.findOneAndDelete({
       cityName: cityName.trim(),

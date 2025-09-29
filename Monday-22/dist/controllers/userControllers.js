@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import { createUserValidation, changeUserValidation, verifyUserValidation, generateUserValidation, loginUserValidation, resetUserValidation, detailUserValidation, deleteUserValidation, editUserValidation, listUserValidation, } from "../middleware/validationUser.js";
 import userModel from "../models/userModels.js";
 import { generateOTP, sendOTP } from "../utils/OTP.js";
 dotenv.config();
@@ -36,7 +35,6 @@ const isOTPValid = (user, inputOTP) => {
 };
 export const registerUser = async (req, res, next) => {
     try {
-        await createUserValidation.validateAsync(req.body);
         const { email, name, city, gender, country, pincode, state, password, profilePictureURL, } = req.body;
         const temail = tEmail(email);
         const emailregex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,7 +79,6 @@ export const registerUser = async (req, res, next) => {
 };
 export const generateOtp = async (req, res, next) => {
     try {
-        await generateUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -107,7 +104,6 @@ export const generateOtp = async (req, res, next) => {
 };
 export const verifyOTP = async (req, res, next) => {
     try {
-        await verifyUserValidation.validateAsync(req.body);
         const { email, OTP } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         console.log("otp in body :", OTP);
@@ -129,7 +125,6 @@ export const verifyOTP = async (req, res, next) => {
 };
 export const loginUser = async (req, res, next) => {
     try {
-        await loginUserValidation.validateAsync(req.body);
         const { email, password } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -190,7 +185,6 @@ export const getAllUsers = async (req, res, next) => {
 };
 export const resetPassword = async (req, res, next) => {
     try {
-        await resetUserValidation.validateAsync(req.body);
         const { email, OTP, newPassword } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user || !isOTPValid(user, OTP)) {
@@ -215,7 +209,6 @@ export const resetPassword = async (req, res, next) => {
 };
 export const changePassword = async (req, res, next) => {
     try {
-        await changeUserValidation.validateAsync(req.body);
         const { oldPassword, newPassword, confirmPassword } = req.body;
         if (newPassword !== confirmPassword) {
             return res.status(400).json({
@@ -256,7 +249,6 @@ export const changePassword = async (req, res, next) => {
 };
 export const userDetail = async (req, res, next) => {
     try {
-        await detailUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const user = await userModel.findOne({ email: tEmail(email) });
         if (!user) {
@@ -276,7 +268,6 @@ export const userDetail = async (req, res, next) => {
 };
 export const editUser = async (req, res, next) => {
     try {
-        await editUserValidation.validateAsync(req.body);
         const { name, gender, city, state, country, profilePhotoURL, email } = req.body;
         const user = await userModel.findOne({});
         if (!user) {
@@ -344,7 +335,6 @@ export const logoutUser = async (req, res, next) => {
 };
 export const deleteUser = async (req, res, next) => {
     try {
-        await deleteUserValidation.validateAsync(req.body);
         const { email } = req.body;
         const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
         if (!deleted) {

@@ -1,5 +1,4 @@
 import stateModel from "../models/stateModels.js";
-import { createStateValidation, listStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation } from "../utils/validationState.js";
 export const getAllStates = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -34,7 +33,6 @@ export const getAllStates = async (req, res, next) => {
 };
 export const createState = async (req, res, next) => {
     try {
-        await createStateValidation.validateAsync(req.body);
         const { stateName, countryId } = req.body;
         const exists = await stateModel.findOne({ stateName: stateName.trim() });
         if (exists) {
@@ -57,7 +55,6 @@ export const createState = async (req, res, next) => {
 };
 export const stateList = async (req, res, next) => {
     try {
-        await listStateValidation.validateAsync(req.body);
         const { countryId } = req.body;
         const states = await stateModel
             .find({ countryId })
@@ -82,7 +79,6 @@ export const stateList = async (req, res, next) => {
 };
 export const updateState = async (req, res, next) => {
     try {
-        await updateStateValidation.validateAsync(req.body);
         const { _id, stateName } = req.body;
         const state = await stateModel.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
         if (!state)
@@ -101,7 +97,6 @@ export const updateState = async (req, res, next) => {
 };
 export const deleteState = async (req, res, next) => {
     try {
-        await deleteStateValidation.validateAsync(req.body);
         const { stateName } = req.body;
         const deleted = await stateModel.findOneAndDelete({ stateName: stateName });
         if (!deleted)

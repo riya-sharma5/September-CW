@@ -1,11 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import countryModel from "../models/countryModels.js";
-import {
-  createCountryValidation,
-  updateCountryValidation,
-  deleteCountryValidation,
-  listCountryValidation,
-} from "../utils/validationCountry.js";
 
 export const getAllCountries = async (
   req: Request,
@@ -13,12 +7,12 @@ export const getAllCountries = async (
   next: NextFunction
 ) => {
   try {
-    console.log("into country list api")
-    const {page:pageNo , limit:limitNo} = req.query;
+    console.log("into country list api");
+    const { page: pageNo, limit: limitNo } = req.query;
     console.log("page no :", pageNo, "limit no :", limitNo);
     console.log("query :::", req.query);
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string)|| 10;
+    const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
     const result = await countryModel.aggregate([
@@ -42,7 +36,6 @@ export const getAllCountries = async (
         totalPages: Math.ceil(total / limit),
         currentPage: page,
         pageSize: limit,
-     
       },
     });
   } catch (error) {
@@ -56,7 +49,6 @@ export const createCountry = async (
   next: NextFunction
 ) => {
   try {
-    await createCountryValidation.validateAsync(req.body);
     const { countryName } = req.body;
     const exists = await countryModel.findOne({
       countryName: countryName.trim(),
@@ -86,7 +78,6 @@ export const updateCountry = async (
   next: NextFunction
 ) => {
   try {
-    await updateCountryValidation.validateAsync(req.body);
     const { _id, countryName } = req.body;
     const country = await countryModel.findByIdAndUpdate(
       _id,
@@ -115,7 +106,6 @@ export const deleteCountry = async (
   next: NextFunction
 ) => {
   try {
-    await deleteCountryValidation.validateAsync(req.body);
     const { countryName } = req.body;
     const deleted = await countryModel.findOneAndDelete({
       countryName: countryName,

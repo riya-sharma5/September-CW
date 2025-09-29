@@ -3,20 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import {
-  createUserValidation,
-  changeUserValidation,
-  verifyUserValidation,
-  generateUserValidation,
-  loginUserValidation,
-  resetUserValidation,
-  detailUserValidation,
-  deleteUserValidation,
-  editUserValidation,
-  listUserValidation,
-} from "../middleware/validationUser.js";
 import userModel from "../models/userModels.js";
-
 import { generateOTP, sendOTP } from "../utils/OTP.js";
 
 dotenv.config();
@@ -64,8 +51,6 @@ export const registerUser = async (
   next: NextFunction
 ) => {
   try {
-    await createUserValidation.validateAsync(req.body);
-
     const {
       email,
       name,
@@ -93,7 +78,7 @@ export const registerUser = async (
         .json({ code: 400, message: "Invalid gender value", data: [] });
     }
 
-    const exists = await userModel.findOne({ email: temail })
+    const exists = await userModel.findOne({ email: temail });
 
     if (exists) {
       return res
@@ -133,7 +118,6 @@ export const generateOtp = async (
   next: NextFunction
 ) => {
   try {
-    await generateUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -168,7 +152,6 @@ export const verifyOTP = async (
   next: NextFunction
 ) => {
   try {
-    await verifyUserValidation.validateAsync(req.body);
     const { email, OTP } = req.body;
 
     const user = await userModel.findOne({ email: tEmail(email) });
@@ -197,7 +180,6 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    await loginUserValidation.validateAsync(req.body);
     const { email, password } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -272,15 +254,12 @@ export const getAllUsers = async (
   }
 };
 
-
 export const resetPassword = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    await resetUserValidation.validateAsync(req.body);
-
     const { email, OTP, newPassword } = req.body;
 
     const user = await userModel.findOne({ email: tEmail(email) });
@@ -314,7 +293,6 @@ export const changePassword = async (
   next: NextFunction
 ) => {
   try {
-    await changeUserValidation.validateAsync(req.body);
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
@@ -367,7 +345,6 @@ export const userDetail = async (
   next: NextFunction
 ) => {
   try {
-    await detailUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const user = await userModel.findOne({ email: tEmail(email) });
 
@@ -393,7 +370,6 @@ export const editUser = async (
   next: NextFunction
 ) => {
   try {
-    await editUserValidation.validateAsync(req.body);
     const { name, gender, city, state, country, profilePhotoURL, email } =
       req.body;
 
@@ -473,7 +449,6 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   try {
-    await deleteUserValidation.validateAsync(req.body);
     const { email } = req.body;
     const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
 

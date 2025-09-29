@@ -1,5 +1,4 @@
 import cityModel from "../models/cityModels.js";
-import { listCityValidation, getAllCitiesValidation, createCityValidation, updateCityValidation, deleteCityValidation, } from "../utils/validationCity.js";
 export const getAllCities = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -34,7 +33,6 @@ export const getAllCities = async (req, res, next) => {
 };
 export const createCity = async (req, res, next) => {
     try {
-        await createCityValidation.validateAsync(req.body);
         const { cityName, stateId } = req.body;
         const exists = await cityModel.findOne({
             cityName: cityName.trim(),
@@ -64,7 +62,6 @@ export const createCity = async (req, res, next) => {
 };
 export const cityList = async (req, res, next) => {
     try {
-        await listCityValidation.validateAsync(req.body);
         const { stateId, countryId } = req.body;
         const cities = await cityModel
             .find({ stateId, countryId })
@@ -90,7 +87,6 @@ export const cityList = async (req, res, next) => {
 };
 export const updateCity = async (req, res, next) => {
     try {
-        await updateCityValidation.validateAsync(req.body);
         const { _id, cityName } = req.body;
         const updatedCity = await cityModel.findByIdAndUpdate(_id, { cityName: cityName.trim() }, { new: true });
         if (!updatedCity) {
@@ -110,7 +106,6 @@ export const updateCity = async (req, res, next) => {
 };
 export const deleteCity = async (req, res, next) => {
     try {
-        await deleteCityValidation.validateAsync(req.body);
         const { cityName } = req.body;
         const deleted = await cityModel.findOneAndDelete({
             cityName: cityName.trim(),

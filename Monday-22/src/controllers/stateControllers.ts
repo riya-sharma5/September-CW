@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import stateModel from "../models/stateModels.js";
-import { createStateValidation, listStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation } from "../utils/validationState.js";
 
 export const getAllStates = async (
   req: Request,
@@ -47,7 +46,6 @@ export const createState = async (
   next: NextFunction
 ) => {
   try {
-    await createStateValidation.validateAsync(req.body);
     const { stateName, countryId } = req.body;
 
     const exists = await stateModel.findOne({ stateName: stateName.trim() });
@@ -78,7 +76,6 @@ export const stateList = async (
   next: NextFunction
 ) => {
   try {
-    await listStateValidation.validateAsync(req.body);
     const { countryId } = req.body;
     const states = await stateModel
       .find({ countryId })
@@ -109,7 +106,6 @@ export const updateState = async (
   next: NextFunction
 ) => {
   try {
-    await updateStateValidation.validateAsync(req.body);
     const { _id, stateName } = req.body;
 
     const state = await stateModel.findByIdAndUpdate(
@@ -139,7 +135,6 @@ export const deleteState = async (
   next: NextFunction
 ) => {
   try {
-    await deleteStateValidation.validateAsync(req.body);
     const { stateName } = req.body;
 
     const deleted = await stateModel.findOneAndDelete({ stateName: stateName });
