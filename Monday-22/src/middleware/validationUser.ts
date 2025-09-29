@@ -88,10 +88,6 @@ export const editUserValidation = Joi.object({
   profilePhotoURL: Joi.string().optional(),
 });
 
-export const logoutUserValidation = Joi.object({
-  email: Joi.string().optional(),
-});
-
 export const listUserValidation = Joi.object({
     page: Joi.number().integer().min(1).default(1).optional(),
   limit: Joi.number().integer().min(1).max(100).default(20).optional()

@@ -303,6 +303,13 @@ export const editUser = async (req, res, next) => {
 export const logoutUser = async (req, res, next) => {
     try {
         const userId = res.locals.user?._id;
+        if (!userId) {
+            return res.status(401).json({
+                code: 401,
+                message: "Unauthorized User ID",
+                data: [],
+            });
+        }
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -311,23 +318,12 @@ export const logoutUser = async (req, res, next) => {
                 data: [],
             });
         }
-        if (user) {
-            await userModel.findOneAndUpdate({
-                $set: {
-                    token: null,
-                },
-            }, {
-                new: true,
-            });
-            return res
-                .status(200)
-                .json({ code: 200, message: "User Logout Successfully", data: [] });
-        }
-        else {
-            return res
-                .status(400)
-                .json({ code: 400, message: "User not found", data: [] });
-        }
+        await userModel.findByIdAndUpdate(userId, { $set: { token: null } }, { new: true });
+        return res.status(200).json({
+            code: 200,
+            message: "User logged out successfully",
+            data: [],
+        });
     }
     catch (error) {
         next(error);

@@ -12,6 +12,5 @@ export declare const changeUserValidation: Joi.ObjectSchema<any>;
 export declare const detailUserValidation: Joi.ObjectSchema<any>;
 export declare const deleteUserValidation: Joi.ObjectSchema<any>;
 export declare const editUserValidation: Joi.ObjectSchema<any>;
-export declare const logoutUserValidation: Joi.ObjectSchema<any>;
 export declare const listUserValidation: Joi.ObjectSchema<any>;
 //# sourceMappingURL=validationUser.d.ts.map
