@@ -1,9 +1,8 @@
 import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { verifyJWT } from '../middleware/jwtVerify.js';
 import * as dotenv from 'dotenv';
-import studentModel from '../models/studentmodels.js';
+import studentModel from '../models/studentmodels.ts';
 
 dotenv.config();
 

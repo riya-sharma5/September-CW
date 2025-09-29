@@ -2,11 +2,11 @@ import express from "express";
 
 import mongoose from "mongoose";
 import cors from "cors";
-import countryRoutes from "./routes/countryRoutes.js";
-import stateRoutes from './routes/stateRoutes.js';
-import cityRoutes from './routes/cityRoutes.js'
+import countryRoutes from "./routes/countryRoutes.ts";
+import stateRoutes from './routes/stateRoutes.ts';
+import cityRoutes from './routes/cityRoutes.ts'
 
- import studentRoutes from "./routes/studentRoutes.js";
+ import studentRoutes from "./routes/studentRoutes.ts";
 
 const app = express();
 const PORT = 3000;
