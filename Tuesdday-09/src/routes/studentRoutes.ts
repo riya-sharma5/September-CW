@@ -4,7 +4,7 @@ import {
   getAllStudents,
   editStudent,
   deleteStudent,
-} from '../controllers/studentController.js';
+} from '../controllers/studentController.ts';
 
 export async function routeRequest(req: IncomingMessage, res: ServerResponse) {
   const { url, method } = req;

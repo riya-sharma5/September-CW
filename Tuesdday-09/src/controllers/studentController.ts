@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import Student from '../models/studentModel.js';
+import Student from '../models/studentModel.ts';
 
 function sendJSON(res: ServerResponse, status: number, data: any): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
