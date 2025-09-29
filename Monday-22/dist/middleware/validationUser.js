@@ -17,7 +17,7 @@ export const validateQuery = (schema) => {
     return async (req, res, next) => {
         try {
             let result = await schema.validateAsync(req.query);
-            Object.assign(req.query, result);
+            req.query = result;
             next();
         }
         catch (error) {

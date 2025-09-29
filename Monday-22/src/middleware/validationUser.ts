@@ -22,7 +22,7 @@ export const validateQuery = (schema: ObjectSchema) => {
     try {
      
       let result = await schema.validateAsync(req.query);
-        Object.assign(req.query, result);
+        req.query = result;
         next();
     } catch (error: any) {
       return res.status(400).json({
