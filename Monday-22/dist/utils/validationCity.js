@@ -14,7 +14,7 @@ export const listCityValidation = Joi.object({
     stateId: Joi.string().required()
 });
 export const getAllCitiesValidation = Joi.object({
-    page: Joi.number().optional(),
-    limit: Joi.number().optional()
+    page: Joi.number().integer().min(1).default(1).optional(),
+    limit: Joi.number().integer().min(1).max(100).default(20).optional()
 });
 //# sourceMappingURL=validationCity.js.map
