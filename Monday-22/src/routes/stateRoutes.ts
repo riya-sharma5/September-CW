@@ -1,13 +1,13 @@
 import express from 'express';
-import {  createStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation, listStateValidation } from '../utils/validationState.js';
-import { validateRequest, validateQuery } from '../middleware/validationUser.js';
+import {  createStateValidation, deleteStateValidation, updateStateValidation, getAllStatesValidation, listStateValidation } from '../utils/validationState.ts';
+import { validateRequest, validateQuery } from '../middleware/validationUser.ts';
 import {
   getAllStates,
   createState,
   stateList, 
   updateState,
   deleteState
-} from '../controllers/stateControllers.js';
+} from '../controllers/stateControllers.ts';
 
 
 const router = express.Router();

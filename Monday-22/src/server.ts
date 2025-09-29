@@ -1,12 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import countryRoutes from "./routes/countryRoutes.js";
-import stateRoutes from "./routes/stateRoutes.js";
-import cityRoutes from "./routes/cityRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+import countryRoutes from "./routes/countryRoutes.ts";
+import stateRoutes from "./routes/stateRoutes.ts";
+import cityRoutes from "./routes/cityRoutes.ts";
+import userRoutes from "./routes/userRoutes.ts";
 import dotenv from "dotenv";
-import { errorHandler } from "./middleware/errorHandler.js";
+import { errorHandler } from "./middleware/errorHandler.ts";
 import bodyParser from "body-parser";
 
 dotenv.config();

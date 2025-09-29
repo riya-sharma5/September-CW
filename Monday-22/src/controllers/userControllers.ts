@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
 import userModel from "../models/userModels.js";
-import { generateOTP, sendOTP } from "../utils/OTP.js";
+import { generateOTP, sendOTP } from "../utils/OTP.ts";
 
 dotenv.config();
 
