@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import movieModel from "../models/sample_mflix.js"; 
+import movieModel from "../models/sample_mflix.ts"; 
 import * as dotenv from "dotenv";
 
 dotenv.config();
