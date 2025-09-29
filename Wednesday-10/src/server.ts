@@ -3,7 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
-import studentRoutes from "./routes/studentRoutes.js";
+import studentRoutes from "./routes/studentRoutes.ts";
 
 const app = express();
 const PORT = 3000;

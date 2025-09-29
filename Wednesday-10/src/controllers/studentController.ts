@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import bcrypt from 'bcrypt';
-import { StudentModel } from "../models/studentModels.js";
+import { StudentModel } from "../models/studentModels.ts";
 
 export const registerStudent = async (req: Request, res: Response) => {
   try {
