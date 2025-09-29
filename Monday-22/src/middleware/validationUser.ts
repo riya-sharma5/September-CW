@@ -5,7 +5,7 @@ import type { ObjectSchema } from "joi";
 export const validateRequest = (schema: ObjectSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req, 'request')
+    
       let result = await schema.validateAsync(req.body);
       req.body = result;
       next();
@@ -20,15 +20,11 @@ export const validateRequest = (schema: ObjectSchema) => {
 export const validateQuery = (schema: ObjectSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("trying to validate query");
-      console.log("query :", req.query);
+     
       let result = await schema.validateAsync(req.query);
-      console.log("resule to store :", result);
-      req.query = result;
-      console.log("executing next function ...")
-      next();
+        Object.assign(req.query, result);
+        next();
     } catch (error: any) {
-      console.log("error is", error)
       return res.status(400).json({
         error: error?.details ? error?.details[0]?.message : "something went wrong",
       });

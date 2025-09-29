@@ -2,7 +2,6 @@ import Joi from "joi";
 export const validateRequest = (schema) => {
     return async (req, res, next) => {
         try {
-            console.log(req, 'request');
             let result = await schema.validateAsync(req.body);
             req.body = result;
             next();
@@ -17,16 +16,11 @@ export const validateRequest = (schema) => {
 export const validateQuery = (schema) => {
     return async (req, res, next) => {
         try {
-            console.log("trying to validate query");
-            console.log("query :", req.query);
             let result = await schema.validateAsync(req.query);
-            console.log("resule to store :", result);
-            req.query = result;
-            console.log("executing next function ...");
+            Object.assign(req.query, result);
             next();
         }
         catch (error) {
-            console.log("error is", error);
             return res.status(400).json({
                 error: error?.details ? error?.details[0]?.message : "something went wrong",
             });
