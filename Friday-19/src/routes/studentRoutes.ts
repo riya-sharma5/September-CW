@@ -6,8 +6,8 @@ import {
   studentDetail,
   deleteStudent,
   editStudent,
-} from "../controllers/studentControllers.js";
-import { verifyJWT } from "../middleware/JwtVerify.js";
+} from "../controllers/studentControllers";
+import { verifyJWT } from "../middleware/JwtVerify";
 
 const router = Router();
 

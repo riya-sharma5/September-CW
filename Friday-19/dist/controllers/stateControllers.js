@@ -1,7 +1,13 @@
-import stateModel from "../models/stateModels.js";
-export const getAllStates = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteState = exports.updateState = exports.stateList = exports.createState = exports.getAllStates = void 0;
+const stateModels_1 = __importDefault(require("../models/stateModels"));
+const getAllStates = async (req, res, next) => {
     try {
-        const states = await stateModel.find()
+        const states = await stateModels_1.default.find()
             .populate("countryId", "countryName")
             .exec();
         res
@@ -13,7 +19,8 @@ export const getAllStates = async (req, res, next) => {
         next(error);
     }
 };
-export const createState = async (req, res, next) => {
+exports.getAllStates = getAllStates;
+const createState = async (req, res, next) => {
     try {
         const { stateName, countryId } = req.body;
         if (!stateName ||
@@ -28,13 +35,13 @@ export const createState = async (req, res, next) => {
                 .status(400)
                 .json({ code: 400, message: "country Id is required !", data: [] });
         }
-        const exists = await stateModel.findOne({ stateName: stateName.trim() });
+        const exists = await stateModels_1.default.findOne({ stateName: stateName.trim() });
         if (exists) {
             return res
                 .status(400)
                 .json({ code: 400, message: "State already exists", data: [] });
         }
-        const state = new stateModel({
+        const state = new stateModels_1.default({
             stateName: stateName.trim(),
             countryId: countryId.trim(),
         });
@@ -47,7 +54,8 @@ export const createState = async (req, res, next) => {
         next(error);
     }
 };
-export const stateList = async (req, res, next) => {
+exports.createState = createState;
+const stateList = async (req, res, next) => {
     try {
         const { countryId } = req.body;
         if (!countryId || typeof countryId !== "string") {
@@ -57,7 +65,7 @@ export const stateList = async (req, res, next) => {
                 data: [],
             });
         }
-        const states = await stateModel
+        const states = await stateModels_1.default
             .find({ countryId })
             .populate("countryId", "countryName")
             .exec();
@@ -78,7 +86,8 @@ export const stateList = async (req, res, next) => {
         next(error);
     }
 };
-export const updateState = async (req, res, next) => {
+exports.stateList = stateList;
+const updateState = async (req, res, next) => {
     try {
         const { _id, stateName } = req.body;
         if (!_id)
@@ -92,7 +101,7 @@ export const updateState = async (req, res, next) => {
                 .status(400)
                 .json({ code: 400, message: "Invalid Input", data: [] });
         }
-        const state = await stateModel.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
+        const state = await stateModels_1.default.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
         if (!state)
             return res
                 .status(404)
@@ -107,12 +116,13 @@ export const updateState = async (req, res, next) => {
         next(error);
     }
 };
-export const deleteState = async (req, res, next) => {
+exports.updateState = updateState;
+const deleteState = async (req, res, next) => {
     try {
         const { stateName } = req.body;
         if (!stateName)
             return res.status(400).json({ code: 400, message: "State name is required", data: [] });
-        const deleted = await stateModel.findOneAndDelete({ stateName: stateName });
+        const deleted = await stateModels_1.default.findOneAndDelete({ stateName: stateName });
         if (!deleted)
             return res.status(404).json({ code: 404, message: "State not found", data: [] });
         res.status(200).json({ code: 200, message: "State deleted successfully", data: [] });
@@ -121,4 +131,5 @@ export const deleteState = async (req, res, next) => {
         next(error);
     }
 };
+exports.deleteState = deleteState;
 //# sourceMappingURL=stateControllers.js.map
