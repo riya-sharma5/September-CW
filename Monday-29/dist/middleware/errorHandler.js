@@ -1,6 +1,9 @@
-export function errorHandler(err, req, res, next) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.errorHandler = errorHandler;
+function errorHandler(err, req, res, next) {
     console.error(err);
     res.status(500).json(err);
 }
-export default errorHandler;
+exports.default = errorHandler;
 //# sourceMappingURL=errorHandler.js.map

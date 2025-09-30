@@ -1,14 +1,16 @@
 import express from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
-import errorHandler from "./middleware/errorHandler.js";
+import errorHandler from "./middleware/errorHandler";
 import mongoose from "mongoose";
-import commentsRoutes from "./routes/moviesRoutes.js";
+import movieRoutes from "./routes/moviesRoutes";
+
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 9002;
+
+const PORT =  process.env.PORT || 9004;
 
 app.use(
   cors({
@@ -19,7 +21,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-app.use("/api", commentsRoutes);
+app.use("/api", movieRoutes);
 
 app.use(errorHandler);
 
