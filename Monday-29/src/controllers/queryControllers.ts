@@ -54,7 +54,8 @@ export const getAllMovies = async (
     const totalGenres = result?.[0]?.totalGenres?.[0]?.total ?? 0;
     const totalPages = Math.ceil(totalGenres / limit);
 
-    console.log(`Genres returned: ${genresData.length} / Total genres: ${totalGenres}`);
+    console.log("data", genresData.length);
+    console.log("total genres", totalGenres);
 
     res.status(200).json({
       code: 200,
