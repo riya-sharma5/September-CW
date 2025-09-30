@@ -4,7 +4,7 @@ import {
   createState,
   updateState,
   deleteState
-} from '../controllers/stateControllers.js';
+} from '../controllers/stateControllers';
 
 const router = express.Router();
 

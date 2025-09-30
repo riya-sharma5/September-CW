@@ -1,7 +1,7 @@
 {
   "name": "friday-12",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "description": "TASK:- Merge both student task and country,state,city task \r    Pointers to solve:- \r    1. Using interface, collection in the mongodb \r    2. Use populate\r    3. Flow shuld be:- code\r                       message\r                       data\r    4. Dont use body parser rather use express json\r    5. Everything should be dynamic, like country, state, city (refernced and mapped)",
   "main": "index.js",
   "scripts": {

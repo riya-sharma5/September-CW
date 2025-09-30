@@ -1,7 +1,7 @@
 import type {Request, Response} from 'express';
-import Student from '../models/studentModels.js';
+import Student from '../models/studentModels';
 import bcrypt from 'bcrypt';
-import studentModel from '../models/studentModels.js';
+import studentModel from '../models/studentModels';
 
 
   

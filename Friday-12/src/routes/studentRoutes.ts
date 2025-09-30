@@ -5,7 +5,7 @@ import {
   listStudents,
   studentDetail,
   deleteStudent,
-} from "../controllers/studentControllers.js";
+} from "../controllers/studentControllers";
 
 const router = Router();
 
