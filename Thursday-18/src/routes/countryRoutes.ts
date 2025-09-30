@@ -4,7 +4,7 @@ import {
   createCountry,
   updateCountry,
   deleteCountry
-} from '../controllers/countryControllers.js';
+} from '../controllers/countryControllers';
 
 const router = express.Router();
 

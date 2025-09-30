@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
-import studentModel from '../models/studentmodels.ts';
+import studentModel from '../models/studentmodels';
 
 dotenv.config();
 

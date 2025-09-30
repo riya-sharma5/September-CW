@@ -1,14 +1,21 @@
-import cityModel from "../models/cityModels.js";
-export const getAllCities = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCity = exports.updateCity = exports.createCity = exports.getAllCities = void 0;
+const cityModels_1 = __importDefault(require("../models/cityModels"));
+const getAllCities = async (req, res) => {
     try {
-        const cities = await cityModel.find();
+        const cities = await cityModels_1.default.find();
         res.status(200).json({ code: 200, message: "got all cities", data: cities });
     }
     catch (error) {
         res.status(500).json({ message: "Failed to fetch cities" });
     }
 };
-export const createCity = async (req, res) => {
+exports.getAllCities = getAllCities;
+const createCity = async (req, res) => {
     try {
         const { cityName, stateId } = req.body;
         if (!cityName || typeof cityName !== "string" || cityName.trim() === "") {
@@ -17,11 +24,11 @@ export const createCity = async (req, res) => {
         if (!stateId) {
             return res.status(400).json({ message: "Invalid Input" });
         }
-        const exists = await cityModel.findOne({ cityName: cityName.trim() });
+        const exists = await cityModels_1.default.findOne({ cityName: cityName.trim() });
         if (exists) {
             return res.status(400).json({ message: "City already exists" });
         }
-        const city = new cityModel({
+        const city = new cityModels_1.default({
             cityName: cityName.trim(),
             stateId: stateId.trim(),
         });
@@ -32,7 +39,8 @@ export const createCity = async (req, res) => {
         res.status(500).json({ message: "Something went wrong" });
     }
 };
-export const updateCity = async (req, res) => {
+exports.createCity = createCity;
+const updateCity = async (req, res) => {
     try {
         const { _id, cityName } = req.body;
         if (!_id)
@@ -40,7 +48,7 @@ export const updateCity = async (req, res) => {
         if (!cityName || typeof cityName !== "string" || cityName.trim() === "") {
             return res.status(400).json({ message: "Invalid Input" });
         }
-        const city = await cityModel.findByIdAndUpdate(_id, { cityName: cityName.trim() }, { new: true });
+        const city = await cityModels_1.default.findByIdAndUpdate(_id, { cityName: cityName.trim() }, { new: true });
         if (!city)
             return res.status(404).json({ message: "City not found" });
         res.status(200).json({ code: 200, message: "successfully updated the city", data: city });
@@ -49,12 +57,13 @@ export const updateCity = async (req, res) => {
         res.status(500).json({ message: "Failed to update city" });
     }
 };
-export const deleteCity = async (req, res) => {
+exports.updateCity = updateCity;
+const deleteCity = async (req, res) => {
     try {
         const { cityName } = req.body;
         if (!cityName)
             return res.status(400).json({ message: "City name is required" });
-        const deleted = await cityModel.findOneAndDelete(cityName);
+        const deleted = await cityModels_1.default.findOneAndDelete(cityName);
         if (!deleted)
             return res.status(404).json({ message: "City not found" });
         res.status(200).json({ code: 200, message: "City deleted successfully" });
@@ -63,4 +72,5 @@ export const deleteCity = async (req, res) => {
         res.status(500).json({ message: "Failed to delete city" });
     }
 };
+exports.deleteCity = deleteCity;
 //# sourceMappingURL=cityControllers.js.map

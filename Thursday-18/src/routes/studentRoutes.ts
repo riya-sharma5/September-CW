@@ -6,7 +6,7 @@ import {
   studentDetail,
   deleteStudent,
   editStudent,
-} from "../controllers/studentControllers.js";
+} from "../controllers/studentControllers";
 
 const router = Router();
 

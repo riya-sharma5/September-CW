@@ -4,8 +4,8 @@ import {
   createState,
   updateState,
   deleteState
-} from '../controllers/stateControllers.js';
-import { checkFun } from '../controllers/countryControllers.js';
+} from '../controllers/stateControllers';
+import { checkFun } from '../controllers/countryControllers';
 
 const router = express.Router();
 
