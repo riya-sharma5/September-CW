@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import moment from "moment";
-import userModel from "../models/userModels.js";
-import { generateOTP, sendOTP } from "../utils/OTP.ts";
+import userModel from "../models/userModels";
+import { generateOTP, sendOTP } from "../utils/OTP";
 
 dotenv.config();
 

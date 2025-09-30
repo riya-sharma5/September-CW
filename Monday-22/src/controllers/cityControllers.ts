@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import cityModel from "../models/cityModels.ts";
+import cityModel from "../models/cityModels";
 
 export const getAllCities = async (
   req: Request,

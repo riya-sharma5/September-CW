@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import userModel from "../models/userModels.ts";
+import userModel from "../models/userModels";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 import * as dotenv from "dotenv";

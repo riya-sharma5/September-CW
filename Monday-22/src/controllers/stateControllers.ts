@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import stateModel from "../models/stateModels.ts";
+import stateModel from "../models/stateModels";
 
 export const getAllStates = async (
   req: Request,

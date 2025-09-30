@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUserValidation, validateQuery, editUserValidation, validateRequest, loginUserValidation,detailUserValidation, deleteUserValidation, resetUserValidation, changeUserValidation, verifyUserValidation, generateUserValidation, listUserValidation } from "../middleware/validationUser.ts";
+import { createUserValidation, validateQuery, editUserValidation, validateRequest, loginUserValidation,detailUserValidation, deleteUserValidation, resetUserValidation, changeUserValidation, verifyUserValidation, generateUserValidation, listUserValidation } from "../middleware/validationUser";
 
 import {
   registerUser,
@@ -13,8 +13,8 @@ import {
   deleteUser,
   logoutUser,
   editUser,
-} from "../controllers/userControllers.ts";
-import { verifyJWT } from "../middleware/JwtVerify.ts";
+} from "../controllers/userControllers";
+import { verifyJWT } from "../middleware/JwtVerify";
 
 
 const router = Router();

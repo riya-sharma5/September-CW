@@ -1,13 +1,13 @@
 import express from 'express';
-import { validateRequest, validateQuery } from '../middleware/validationUser.ts';
-import { createCityValidation, deleteCityValidation, updateCityValidation, getAllCitiesValidation, listCityValidation } from '../utils/validationCity.ts';
+import { validateRequest, validateQuery } from '../middleware/validationUser';
+import { createCityValidation, deleteCityValidation, updateCityValidation, getAllCitiesValidation, listCityValidation } from '../utils/validationCity';
 import {
   getAllCities,
   createCity,
   cityList,
   updateCity,
   deleteCity
-} from '../controllers/cityControllers.ts';
+} from '../controllers/cityControllers';
 
 const router = express.Router();
 

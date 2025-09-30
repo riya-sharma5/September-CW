@@ -1,12 +1,12 @@
 import express from 'express';
-import { validateRequest, validateQuery } from '../middleware/validationUser.ts';
-import {createCountryValidation, listCountryValidation, updateCountryValidation, deleteCountryValidation } from '../utils/validationCountry.ts';
+import { validateRequest, validateQuery } from '../middleware/validationUser';
+import {createCountryValidation, listCountryValidation, updateCountryValidation, deleteCountryValidation } from '../utils/validationCountry';
 import {
   getAllCountries,
   createCountry,
   updateCountry,
   deleteCountry
-} from '../controllers/countryControllers.ts';
+} from '../controllers/countryControllers';
 
 const router = express.Router();
 
