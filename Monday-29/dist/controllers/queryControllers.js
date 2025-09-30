@@ -200,7 +200,7 @@ const getMoviesByYearGroupedByGenre = async (req, res, next) => {
         const totalPages = Math.ceil(totalGenres / limit);
         res.status(200).json({
             code: 200,
-            message: `grouped movies by genre for release year ${releaseYear}`,
+            message: 'grouped movies by genre for release year',
             data: genreData,
             pagination: {
                 totalGenres,
