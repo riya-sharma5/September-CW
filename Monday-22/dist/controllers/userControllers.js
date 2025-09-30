@@ -1,9 +1,48 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
-import moment from "moment";
-import userModel from "../models/userModels.js";
-import { generateOTP, sendOTP } from "../utils/OTP.js";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteUser = exports.logoutUser = exports.editUser = exports.userDetail = exports.changePassword = exports.resetPassword = exports.getAllUsers = exports.loginUser = exports.verifyOTP = exports.generateOtp = exports.registerUser = void 0;
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv = __importStar(require("dotenv"));
+const moment_1 = __importDefault(require("moment"));
+const userModels_1 = __importDefault(require("../models/userModels"));
+const OTP_1 = require("../utils/OTP");
 dotenv.config();
 if (!process.env.PRIVATE_KEY) {
     throw new Error("Missing PRIVATE_KEY in environment variables.");
@@ -33,7 +72,7 @@ const isOTPValid = (user, inputOTP) => {
     }
     return { valid: true };
 };
-export const registerUser = async (req, res, next) => {
+const registerUser = async (req, res, next) => {
     try {
         const { email, name, city, gender, country, pincode, state, password, profilePictureURL, } = req.body;
         const temail = tEmail(email);
@@ -48,14 +87,14 @@ export const registerUser = async (req, res, next) => {
                 .status(400)
                 .json({ code: 400, message: "Invalid gender value", data: [] });
         }
-        const exists = await userModel.findOne({ email: temail });
+        const exists = await userModels_1.default.findOne({ email: temail });
         if (exists) {
             return res
                 .status(400)
                 .json({ code: 400, message: "User already exists", data: [] });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new userModel({
+        const hashedPassword = await bcrypt_1.default.hash(password, 10);
+        const newUser = new userModels_1.default({
             email: temail,
             name,
             gender,
@@ -77,21 +116,22 @@ export const registerUser = async (req, res, next) => {
         next(error);
     }
 };
-export const generateOtp = async (req, res, next) => {
+exports.registerUser = registerUser;
+const generateOtp = async (req, res, next) => {
     try {
         const { email } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const user = await userModels_1.default.findOne({ email: tEmail(email) });
         if (!user) {
             return res
                 .status(404)
                 .json({ code: 404, message: "User not found", data: [] });
         }
-        const OTP = generateOTP();
-        const expiry = moment().add(2, "minutes").toDate();
+        const OTP = (0, OTP_1.generateOTP)();
+        const expiry = (0, moment_1.default)().add(2, "minutes").toDate();
         user.OTP = OTP;
         user.otpExpires = expiry;
         await user.save();
-        await sendOTP(email, OTP);
+        await (0, OTP_1.sendOTP)(email, OTP);
         return res.status(200).json({
             code: 200,
             message: "OTP sent successfully",
@@ -102,10 +142,11 @@ export const generateOtp = async (req, res, next) => {
         next(error);
     }
 };
-export const verifyOTP = async (req, res, next) => {
+exports.generateOtp = generateOtp;
+const verifyOTP = async (req, res, next) => {
     try {
         const { email, OTP } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const user = await userModels_1.default.findOne({ email: tEmail(email) });
         console.log("otp in body :", OTP);
         if (!user || !isOTPValid(user, OTP)) {
             return res
@@ -123,21 +164,22 @@ export const verifyOTP = async (req, res, next) => {
         next(error);
     }
 };
-export const loginUser = async (req, res, next) => {
+exports.verifyOTP = verifyOTP;
+const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const user = await userModels_1.default.findOne({ email: tEmail(email) });
         if (!user) {
             return res.status(404).json({ code: 404, message: "User not found" });
         }
-        const match = await bcrypt.compare(password, user.password);
+        const match = await bcrypt_1.default.compare(password, user.password);
         if (!match) {
             return res
                 .status(401)
                 .json({ code: 401, message: "Incorrect password", data: [] });
         }
         await user.save();
-        const token = jwt.sign({ _id: user._id, email: user.email }, process.env.PRIVATE_KEY, {
+        const token = jsonwebtoken_1.default.sign({ _id: user._id, email: user.email }, process.env.PRIVATE_KEY, {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY ?? "1d",
         });
         return res.status(200).json({
@@ -151,12 +193,13 @@ export const loginUser = async (req, res, next) => {
         next(error);
     }
 };
-export const getAllUsers = async (req, res, next) => {
+exports.loginUser = loginUser;
+const getAllUsers = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const result = await userModel.aggregate([
+        const result = await userModels_1.default.aggregate([
             {
                 $facet: {
                     data: [{ $skip: skip }, { $limit: limit }],
@@ -183,16 +226,17 @@ export const getAllUsers = async (req, res, next) => {
         next(error);
     }
 };
-export const resetPassword = async (req, res, next) => {
+exports.getAllUsers = getAllUsers;
+const resetPassword = async (req, res, next) => {
     try {
         const { email, OTP, newPassword } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const user = await userModels_1.default.findOne({ email: tEmail(email) });
         if (!user || !isOTPValid(user, OTP)) {
             return res
                 .status(400)
                 .json({ code: 400, message: "Invalid or expired OTP", data: [] });
         }
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt_1.default.hash(newPassword, 10);
         user.password = hashedPassword;
         user.OTP = null;
         user.otpExpires = null;
@@ -207,7 +251,8 @@ export const resetPassword = async (req, res, next) => {
         next(error);
     }
 };
-export const changePassword = async (req, res, next) => {
+exports.resetPassword = resetPassword;
+const changePassword = async (req, res, next) => {
     try {
         const { oldPassword, newPassword, confirmPassword } = req.body;
         if (newPassword !== confirmPassword) {
@@ -218,7 +263,7 @@ export const changePassword = async (req, res, next) => {
             });
         }
         const userId = res.locals.user?._id;
-        const user = await userModel.findById(userId);
+        const user = await userModels_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({
                 code: 404,
@@ -226,7 +271,7 @@ export const changePassword = async (req, res, next) => {
                 data: [],
             });
         }
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        const isMatch = await bcrypt_1.default.compare(oldPassword, user.password);
         if (!isMatch) {
             return res.status(401).json({
                 code: 401,
@@ -234,7 +279,7 @@ export const changePassword = async (req, res, next) => {
                 data: [],
             });
         }
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        const hashedNewPassword = await bcrypt_1.default.hash(newPassword, 10);
         user.password = hashedNewPassword;
         await user.save();
         return res.status(200).json({
@@ -247,10 +292,11 @@ export const changePassword = async (req, res, next) => {
         next(error);
     }
 };
-export const userDetail = async (req, res, next) => {
+exports.changePassword = changePassword;
+const userDetail = async (req, res, next) => {
     try {
         const { email } = req.body;
-        const user = await userModel.findOne({ email: tEmail(email) });
+        const user = await userModels_1.default.findOne({ email: tEmail(email) });
         if (!user) {
             return res
                 .status(404)
@@ -266,10 +312,11 @@ export const userDetail = async (req, res, next) => {
         next(error);
     }
 };
-export const editUser = async (req, res, next) => {
+exports.userDetail = userDetail;
+const editUser = async (req, res, next) => {
     try {
         const { name, gender, city, state, country, profilePhotoURL, email } = req.body;
-        const user = await userModel.findOne({});
+        const user = await userModels_1.default.findOne({});
         if (!user) {
             return res
                 .status(404)
@@ -300,7 +347,8 @@ export const editUser = async (req, res, next) => {
         next(error);
     }
 };
-export const logoutUser = async (req, res, next) => {
+exports.editUser = editUser;
+const logoutUser = async (req, res, next) => {
     try {
         const userId = res.locals.user?._id;
         if (!userId) {
@@ -310,7 +358,7 @@ export const logoutUser = async (req, res, next) => {
                 data: [],
             });
         }
-        const user = await userModel.findById(userId);
+        const user = await userModels_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({
                 code: 404,
@@ -318,7 +366,7 @@ export const logoutUser = async (req, res, next) => {
                 data: [],
             });
         }
-        await userModel.findByIdAndUpdate(userId, { $set: { token: null } }, { new: true });
+        await userModels_1.default.findByIdAndUpdate(userId, { $set: { token: null } }, { new: true });
         return res.status(200).json({
             code: 200,
             message: "User logged out successfully",
@@ -329,10 +377,11 @@ export const logoutUser = async (req, res, next) => {
         next(error);
     }
 };
-export const deleteUser = async (req, res, next) => {
+exports.logoutUser = logoutUser;
+const deleteUser = async (req, res, next) => {
     try {
         const { email } = req.body;
-        const deleted = await userModel.findOneAndDelete({ email: tEmail(email) });
+        const deleted = await userModels_1.default.findOneAndDelete({ email: tEmail(email) });
         if (!deleted) {
             return res
                 .status(404)
@@ -348,4 +397,5 @@ export const deleteUser = async (req, res, next) => {
         next(error);
     }
 };
+exports.deleteUser = deleteUser;
 //# sourceMappingURL=userControllers.js.map

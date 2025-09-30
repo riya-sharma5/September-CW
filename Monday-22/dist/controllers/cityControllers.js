@@ -1,10 +1,16 @@
-import cityModel from "../models/cityModels.js";
-export const getAllCities = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCity = exports.updateCity = exports.cityList = exports.createCity = exports.getAllCities = void 0;
+const cityModels_1 = __importDefault(require("../models/cityModels"));
+const getAllCities = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const result = await cityModel.aggregate([
+        const result = await cityModels_1.default.aggregate([
             {
                 $facet: {
                     data: [{ $skip: skip }, { $limit: limit }],
@@ -31,10 +37,11 @@ export const getAllCities = async (req, res, next) => {
         next(error);
     }
 };
-export const createCity = async (req, res, next) => {
+exports.getAllCities = getAllCities;
+const createCity = async (req, res, next) => {
     try {
         const { cityName, stateId } = req.body;
-        const exists = await cityModel.findOne({
+        const exists = await cityModels_1.default.findOne({
             cityName: cityName.trim(),
             stateId: stateId.trim(),
         });
@@ -45,7 +52,7 @@ export const createCity = async (req, res, next) => {
                 data: [],
             });
         }
-        const city = new cityModel({
+        const city = new cityModels_1.default({
             cityName: cityName.trim(),
             stateId: stateId.trim(),
         });
@@ -60,10 +67,11 @@ export const createCity = async (req, res, next) => {
         next(error);
     }
 };
-export const cityList = async (req, res, next) => {
+exports.createCity = createCity;
+const cityList = async (req, res, next) => {
     try {
         const { stateId, countryId } = req.body;
-        const cities = await cityModel
+        const cities = await cityModels_1.default
             .find({ stateId, countryId })
             .populate("stateId", "stateName")
             .populate("countryId", "countryName")
@@ -85,10 +93,11 @@ export const cityList = async (req, res, next) => {
         next(error);
     }
 };
-export const updateCity = async (req, res, next) => {
+exports.cityList = cityList;
+const updateCity = async (req, res, next) => {
     try {
         const { _id, cityName } = req.body;
-        const updatedCity = await cityModel.findByIdAndUpdate(_id, { cityName: cityName.trim() }, { new: true });
+        const updatedCity = await cityModels_1.default.findByIdAndUpdate(_id, { cityName: cityName.trim() }, { new: true });
         if (!updatedCity) {
             return res
                 .status(404)
@@ -104,10 +113,11 @@ export const updateCity = async (req, res, next) => {
         next(error);
     }
 };
-export const deleteCity = async (req, res, next) => {
+exports.updateCity = updateCity;
+const deleteCity = async (req, res, next) => {
     try {
         const { cityName } = req.body;
-        const deleted = await cityModel.findOneAndDelete({
+        const deleted = await cityModels_1.default.findOneAndDelete({
             cityName: cityName.trim(),
         });
         if (!deleted) {
@@ -125,4 +135,5 @@ export const deleteCity = async (req, res, next) => {
         next(error);
     }
 };
+exports.deleteCity = deleteCity;
 //# sourceMappingURL=cityControllers.js.map

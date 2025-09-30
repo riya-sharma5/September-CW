@@ -1,5 +1,11 @@
-import Joi from "joi";
-export const validateRequest = (schema) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.listUserValidation = exports.editUserValidation = exports.deleteUserValidation = exports.detailUserValidation = exports.changeUserValidation = exports.resetUserValidation = exports.loginUserValidation = exports.verifyUserValidation = exports.generateUserValidation = exports.createUserValidation = exports.validateQuery = exports.validateRequest = void 0;
+const joi_1 = __importDefault(require("joi"));
+const validateRequest = (schema) => {
     return async (req, res, next) => {
         try {
             let result = await schema.validateAsync(req.body);
@@ -13,7 +19,8 @@ export const validateRequest = (schema) => {
         }
     };
 };
-export const validateQuery = (schema) => {
+exports.validateRequest = validateRequest;
+const validateQuery = (schema) => {
     return async (req, res, next) => {
         try {
             let result = await schema.validateAsync(req.query);
@@ -27,55 +34,56 @@ export const validateQuery = (schema) => {
         }
     };
 };
-export const createUserValidation = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    country: Joi.string().required(),
-    profilePhotoURL: Joi.string().optional(),
-    city: Joi.string().required(),
-    state: Joi.string().required(),
-    pincode: Joi.string().required(),
-    gender: Joi.number().required(),
+exports.validateQuery = validateQuery;
+exports.createUserValidation = joi_1.default.object({
+    name: joi_1.default.string().required(),
+    email: joi_1.default.string().email().required(),
+    password: joi_1.default.string().required(),
+    country: joi_1.default.string().required(),
+    profilePhotoURL: joi_1.default.string().optional(),
+    city: joi_1.default.string().required(),
+    state: joi_1.default.string().required(),
+    pincode: joi_1.default.string().required(),
+    gender: joi_1.default.number().required(),
 });
-export const generateUserValidation = Joi.object({
-    email: Joi.string().email().required(),
+exports.generateUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
 });
-export const verifyUserValidation = Joi.object({
-    email: Joi.string().email().required(),
-    otp: Joi.string().required(),
+exports.verifyUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
+    otp: joi_1.default.string().required(),
 });
-export const loginUserValidation = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
+exports.loginUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
+    password: joi_1.default.string().required(),
 });
-export const resetUserValidation = Joi.object({
-    email: Joi.string().email().required(),
-    otp: Joi.string().required(),
-    newPassword: Joi.string().required(),
+exports.resetUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
+    otp: joi_1.default.string().required(),
+    newPassword: joi_1.default.string().required(),
 });
-export const changeUserValidation = Joi.object({
-    oldPassword: Joi.string().required(),
-    newPassword: Joi.string().required(),
-    confirmPassword: Joi.string().required(),
+exports.changeUserValidation = joi_1.default.object({
+    oldPassword: joi_1.default.string().required(),
+    newPassword: joi_1.default.string().required(),
+    confirmPassword: joi_1.default.string().required(),
 });
-export const detailUserValidation = Joi.object({
-    email: Joi.string().email().required(),
+exports.detailUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
 });
-export const deleteUserValidation = Joi.object({
-    email: Joi.string().email().required(),
+exports.deleteUserValidation = joi_1.default.object({
+    email: joi_1.default.string().email().required(),
 });
-export const editUserValidation = Joi.object({
-    name: Joi.string().optional(),
-    gender: Joi.number().optional(),
-    email: Joi.string().optional(),
-    city: Joi.string().optional(),
-    country: Joi.string().optional(),
-    state: Joi.string().optional(),
-    profilePhotoURL: Joi.string().optional(),
+exports.editUserValidation = joi_1.default.object({
+    name: joi_1.default.string().optional(),
+    gender: joi_1.default.number().optional(),
+    email: joi_1.default.string().optional(),
+    city: joi_1.default.string().optional(),
+    country: joi_1.default.string().optional(),
+    state: joi_1.default.string().optional(),
+    profilePhotoURL: joi_1.default.string().optional(),
 });
-export const listUserValidation = Joi.object({
-    page: Joi.number().integer().min(1).default(1).optional(),
-    limit: Joi.number().integer().min(1).max(100).default(20).optional()
+exports.listUserValidation = joi_1.default.object({
+    page: joi_1.default.number().integer().min(1).default(1).optional(),
+    limit: joi_1.default.number().integer().min(1).max(100).default(20).optional()
 });
 //# sourceMappingURL=validationUser.js.map

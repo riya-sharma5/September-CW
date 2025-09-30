@@ -1,10 +1,16 @@
-import stateModel from "../models/stateModels.js";
-export const getAllStates = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteState = exports.updateState = exports.stateList = exports.createState = exports.getAllStates = void 0;
+const stateModels_1 = __importDefault(require("../models/stateModels"));
+const getAllStates = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const result = await stateModel.aggregate([
+        const result = await stateModels_1.default.aggregate([
             {
                 $facet: {
                     data: [{ $skip: skip }, { $limit: limit }],
@@ -31,16 +37,17 @@ export const getAllStates = async (req, res, next) => {
         next(error);
     }
 };
-export const createState = async (req, res, next) => {
+exports.getAllStates = getAllStates;
+const createState = async (req, res, next) => {
     try {
         const { stateName, countryId } = req.body;
-        const exists = await stateModel.findOne({ stateName: stateName.trim() });
+        const exists = await stateModels_1.default.findOne({ stateName: stateName.trim() });
         if (exists) {
             return res
                 .status(400)
                 .json({ code: 400, message: "State already exists", data: [] });
         }
-        const state = new stateModel({
+        const state = new stateModels_1.default({
             stateName: stateName.trim(),
             countryId: countryId.trim(),
         });
@@ -53,10 +60,11 @@ export const createState = async (req, res, next) => {
         next(error);
     }
 };
-export const stateList = async (req, res, next) => {
+exports.createState = createState;
+const stateList = async (req, res, next) => {
     try {
         const { countryId } = req.body;
-        const states = await stateModel
+        const states = await stateModels_1.default
             .find({ countryId })
             .populate("countryId", "countryName")
             .exec();
@@ -77,10 +85,11 @@ export const stateList = async (req, res, next) => {
         next(error);
     }
 };
-export const updateState = async (req, res, next) => {
+exports.stateList = stateList;
+const updateState = async (req, res, next) => {
     try {
         const { _id, stateName } = req.body;
-        const state = await stateModel.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
+        const state = await stateModels_1.default.findByIdAndUpdate(_id, { stateName: stateName.trim() }, { new: true });
         if (!state)
             return res
                 .status(404)
@@ -95,10 +104,11 @@ export const updateState = async (req, res, next) => {
         next(error);
     }
 };
-export const deleteState = async (req, res, next) => {
+exports.updateState = updateState;
+const deleteState = async (req, res, next) => {
     try {
         const { stateName } = req.body;
-        const deleted = await stateModel.findOneAndDelete({ stateName: stateName });
+        const deleted = await stateModels_1.default.findOneAndDelete({ stateName: stateName });
         if (!deleted)
             return res
                 .status(404)
@@ -111,4 +121,5 @@ export const deleteState = async (req, res, next) => {
         next(error);
     }
 };
+exports.deleteState = deleteState;
 //# sourceMappingURL=stateControllers.js.map

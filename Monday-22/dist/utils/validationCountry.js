@@ -1,16 +1,22 @@
-import Joi from 'joi';
-export const createCountryValidation = Joi.object({
-    countryName: Joi.string().required()
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.listCountryValidation = exports.deleteCountryValidation = exports.updateCountryValidation = exports.createCountryValidation = void 0;
+const joi_1 = __importDefault(require("joi"));
+exports.createCountryValidation = joi_1.default.object({
+    countryName: joi_1.default.string().required()
 });
-export const updateCountryValidation = Joi.object({
-    countryName: Joi.string().required(),
-    _id: Joi.string().required()
+exports.updateCountryValidation = joi_1.default.object({
+    countryName: joi_1.default.string().required(),
+    _id: joi_1.default.string().required()
 });
-export const deleteCountryValidation = Joi.object({
-    countryName: Joi.string().required()
+exports.deleteCountryValidation = joi_1.default.object({
+    countryName: joi_1.default.string().required()
 });
-export const listCountryValidation = Joi.object({
-    page: Joi.number().integer().min(1).default(1).optional(),
-    limit: Joi.number().integer().min(1).max(100).default(20).optional()
+exports.listCountryValidation = joi_1.default.object({
+    page: joi_1.default.number().integer().min(1).default(1).optional(),
+    limit: joi_1.default.number().integer().min(1).max(100).default(20).optional()
 });
 //# sourceMappingURL=validationCountry.js.map

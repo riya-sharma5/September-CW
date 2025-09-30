@@ -1,5 +1,11 @@
-import countryModel from "../models/countryModels.js";
-export const getAllCountries = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCountry = exports.updateCountry = exports.createCountry = exports.getAllCountries = void 0;
+const countryModels_1 = __importDefault(require("../models/countryModels"));
+const getAllCountries = async (req, res, next) => {
     try {
         console.log("into country list api");
         const { page: pageNo, limit: limitNo } = req.query;
@@ -8,7 +14,7 @@ export const getAllCountries = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const result = await countryModel.aggregate([
+        const result = await countryModels_1.default.aggregate([
             {
                 $facet: {
                     data: [{ $skip: skip }, { $limit: limit }],
@@ -34,10 +40,11 @@ export const getAllCountries = async (req, res, next) => {
         next(error);
     }
 };
-export const createCountry = async (req, res, next) => {
+exports.getAllCountries = getAllCountries;
+const createCountry = async (req, res, next) => {
     try {
         const { countryName } = req.body;
-        const exists = await countryModel.findOne({
+        const exists = await countryModels_1.default.findOne({
             countryName: countryName.trim(),
         });
         if (exists) {
@@ -45,7 +52,7 @@ export const createCountry = async (req, res, next) => {
                 .status(400)
                 .json({ code: 400, message: "Country already exists", data: [] });
         }
-        const country = new countryModel({ countryName: countryName.trim() });
+        const country = new countryModels_1.default({ countryName: countryName.trim() });
         await country.save();
         res.status(201).json({
             code: 201,
@@ -57,10 +64,11 @@ export const createCountry = async (req, res, next) => {
         next(error);
     }
 };
-export const updateCountry = async (req, res, next) => {
+exports.createCountry = createCountry;
+const updateCountry = async (req, res, next) => {
     try {
         const { _id, countryName } = req.body;
-        const country = await countryModel.findByIdAndUpdate(_id, { countryName: countryName.trim() }, { new: true });
+        const country = await countryModels_1.default.findByIdAndUpdate(_id, { countryName: countryName.trim() }, { new: true });
         if (!country)
             return res
                 .status(404)
@@ -75,10 +83,11 @@ export const updateCountry = async (req, res, next) => {
         next(error);
     }
 };
-export const deleteCountry = async (req, res, next) => {
+exports.updateCountry = updateCountry;
+const deleteCountry = async (req, res, next) => {
     try {
         const { countryName } = req.body;
-        const deleted = await countryModel.findOneAndDelete({
+        const deleted = await countryModels_1.default.findOneAndDelete({
             countryName: countryName,
         });
         if (!deleted)
@@ -93,4 +102,5 @@ export const deleteCountry = async (req, res, next) => {
         next(error);
     }
 };
+exports.deleteCountry = deleteCountry;
 //# sourceMappingURL=countryControllers.js.map

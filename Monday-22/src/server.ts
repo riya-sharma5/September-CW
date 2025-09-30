@@ -1,26 +1,17 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import countryRoutes from "./routes/countryRoutes.ts";
-import stateRoutes from "./routes/stateRoutes.ts";
-import cityRoutes from "./routes/cityRoutes.ts";
-import userRoutes from "./routes/userRoutes.ts";
+import countryRoutes from "./routes/countryRoutes";
+import stateRoutes from "./routes/stateRoutes";
+import cityRoutes from "./routes/cityRoutes";
+import userRoutes from "./routes/userRoutes";
 import dotenv from "dotenv";
-import { errorHandler } from "./middleware/errorHandler.ts";
+import { errorHandler } from "./middleware/errorHandler";
 import bodyParser from "body-parser";
 
 dotenv.config();
 
 const app = express();
-
-// app.get("/", (req,res) => {
-//   console.log(`app listen`);
-//   res.send("Hello world !!!");
-// })
-
-// app.listen(8585,() => {
-//   console.log(`app listen at `, 8585);
-// })
 
 app.use(express.urlencoded({ extended: false }));
 const PORT = 9595;

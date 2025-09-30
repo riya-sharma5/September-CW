@@ -1,11 +1,16 @@
-import express from 'express';
-import { validateRequest, validateQuery } from '../middleware/validationUser.js';
-import { createCountryValidation, listCountryValidation, updateCountryValidation, deleteCountryValidation } from '../utils/validationCountry.js';
-import { getAllCountries, createCountry, updateCountry, deleteCountry } from '../controllers/countryControllers.js';
-const router = express.Router();
-router.get('/all', validateQuery(listCountryValidation), getAllCountries);
-router.post('/create', validateRequest(createCountryValidation), createCountry);
-router.put('/update', validateRequest(updateCountryValidation), updateCountry);
-router.delete('/delete', validateRequest(deleteCountryValidation), deleteCountry);
-export default router;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const validationUser_1 = require("../middleware/validationUser");
+const validationCountry_1 = require("../utils/validationCountry");
+const countryControllers_1 = require("../controllers/countryControllers");
+const router = express_1.default.Router();
+router.get('/all', (0, validationUser_1.validateQuery)(validationCountry_1.listCountryValidation), countryControllers_1.getAllCountries);
+router.post('/create', (0, validationUser_1.validateRequest)(validationCountry_1.createCountryValidation), countryControllers_1.createCountry);
+router.put('/update', (0, validationUser_1.validateRequest)(validationCountry_1.updateCountryValidation), countryControllers_1.updateCountry);
+router.delete('/delete', (0, validationUser_1.validateRequest)(validationCountry_1.deleteCountryValidation), countryControllers_1.deleteCountry);
+exports.default = router;
 //# sourceMappingURL=countryRoutes.js.map
