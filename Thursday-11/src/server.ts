@@ -2,9 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
-import countryRoutes from "./routes/countryRoutes.js";
-import stateRoutes from './routes/stateRoutes.js';
-import cityRoutes from './routes/cityRoutes.js'
+import countryRoutes from "./routes/countryRoutes";
+import stateRoutes from './routes/stateRoutes';
+import cityRoutes from './routes/cityRoutes'
 
 const app = express();
 const PORT = 3000;

@@ -1,7 +1,7 @@
 {
   "name": "thursday-11",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "description": "1. Implement CRUD operations for the country\r 2. Implement CRUD operations for the state\r 3. Implement CRUD operations for the city",
   "main": "index.js",
   "scripts": {

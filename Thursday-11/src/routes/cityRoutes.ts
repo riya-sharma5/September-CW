@@ -4,7 +4,7 @@ import {
   createCity,
   updateCity,
   deleteCity
-} from '../controllers/cityController.js';
+} from '../controllers/cityController';
 
 const router = express.Router();
 
