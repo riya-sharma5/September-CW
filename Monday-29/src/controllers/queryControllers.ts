@@ -116,7 +116,7 @@ export const getMoviesGroupedByLanguage = async (
 
     res.status(200).json({
       code: 200,
-      message: "Grouped movies by language with IMDb rating filter",
+      message: "grouped movies by language with IMDb rating filter",
       data: languageData,
       pagination: {
         totalLanguages,
@@ -185,7 +185,7 @@ export const getMoviesByYearGroupedByGenre = async (
 
     res.status(200).json({
       code: 200,
-      message: `Grouped movies by genre for release year ${releaseYear}`,
+      message: `grouped movies by genre for release year ${releaseYear}`,
       data: genreData,
       pagination: {
         totalGenres,

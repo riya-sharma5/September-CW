@@ -138,7 +138,7 @@ const getMoviesGroupedByLanguage = async (req, res, next) => {
         const totalPages = Math.ceil(totalLanguages / limit);
         res.status(200).json({
             code: 200,
-            message: "Grouped movies by language with IMDb rating filter",
+            message: "grouped movies by language with IMDb rating filter",
             data: languageData,
             pagination: {
                 totalLanguages,
@@ -200,7 +200,7 @@ const getMoviesByYearGroupedByGenre = async (req, res, next) => {
         const totalPages = Math.ceil(totalGenres / limit);
         res.status(200).json({
             code: 200,
-            message: `Grouped movies by genre for release year ${releaseYear}`,
+            message: `grouped movies by genre for release year ${releaseYear}`,
             data: genreData,
             pagination: {
                 totalGenres,
