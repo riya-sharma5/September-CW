@@ -231,6 +231,7 @@ const resetPassword = async (req, res, next) => {
     try {
         const { email, OTP, newPassword } = req.body;
         const user = await userModels_1.default.findOne({ email: tEmail(email) });
+        console.log("otp in body :", OTP);
         if (!user || !isOTPValid(user, OTP)) {
             return res
                 .status(400)

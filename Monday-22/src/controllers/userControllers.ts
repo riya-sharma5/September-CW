@@ -264,6 +264,7 @@ export const resetPassword = async (
 
     const user = await userModel.findOne({ email: tEmail(email) });
 
+    console.log("otp in body :", OTP);
     if (!user || !isOTPValid(user, OTP)) {
       return res
         .status(400)
