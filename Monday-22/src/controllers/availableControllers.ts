@@ -111,7 +111,7 @@ export const availableUserList = async (
     ];
 
     const countPipeline: any[] = [
-      { $match: { expiry: { $gt: now } } },
+      { $match: { expiry: { $gte: now } } },
       {
         $lookup: {
           from: "users",
