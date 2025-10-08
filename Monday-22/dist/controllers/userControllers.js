@@ -57,7 +57,7 @@ const sanitizeUser = (user) => {
     delete obj.password;
     delete obj.OTP;
     delete obj.otpExpires;
-    if (typeof obj.gender === "number") {
+    if (typeof obj.gender === "string") {
         obj.gender = genderMap[obj.gender] ?? "Unknown";
     }
     return obj;

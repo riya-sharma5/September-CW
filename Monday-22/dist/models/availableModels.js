@@ -42,7 +42,6 @@ const availabilitySchema = new mongoose_1.Schema({
     },
     expiry: { type: Date, required: true },
 }, { timestamps: true, collections: "availabilties", versionKey: false });
-//availabilitySchema.index({ expiry: 1 }, { expireAfterSeconds: 0 });
 const availabilityModel = mongoose_1.default.model("availabilities", availabilitySchema);
 exports.default = availabilityModel;
 //# sourceMappingURL=availableModels.js.map

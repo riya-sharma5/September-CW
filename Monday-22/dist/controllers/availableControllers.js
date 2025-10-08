@@ -72,7 +72,7 @@ const availableUserList = async (req, res, next) => {
             .populate({
             path: "userId",
             match: {
-                name: { $regex: search },
+                name: { $regex: search, $options: 'i' },
             },
             select: "name email gender",
         })

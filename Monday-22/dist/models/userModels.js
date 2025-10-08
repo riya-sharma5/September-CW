@@ -87,6 +87,7 @@ const userSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
     collection: "users",
+    versionKey: false,
 });
 const userModel = mongoose_1.default.model("users", userSchema);
 exports.default = userModel;

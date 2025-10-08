@@ -44,6 +44,7 @@ const stateSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
     collection: "states",
+    versionKey: false,
 });
 const stateModel = mongoose_1.default.model("states", stateSchema);
 exports.default = stateModel;

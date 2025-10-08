@@ -42,7 +42,6 @@ const userSchema: Schema<IUser> = new Schema(
       required: true,
     },
 
-
     pincode: {
       type: String,
       required: true
@@ -81,6 +80,7 @@ const userSchema: Schema<IUser> = new Schema(
   {
     timestamps: true,
     collection: "users",
+    versionKey: false,
   }
 );
 

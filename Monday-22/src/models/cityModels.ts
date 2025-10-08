@@ -18,6 +18,7 @@ const citySchema: Schema<ICity> = new Schema(
   {
     timestamps: true,
     collection: "cities",
+    versionKey: false,
   }
 );
 const cityModel = mongoose.model<ICity>("cities", citySchema);

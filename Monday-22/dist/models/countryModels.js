@@ -39,6 +39,7 @@ const countrySchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
     collection: "countries",
+    versionKey: false,
 });
 const countryModel = mongoose_1.default.model("countries", countrySchema);
 exports.default = countryModel;

@@ -44,6 +44,7 @@ const citySchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
     collection: "cities",
+    versionKey: false,
 });
 const cityModel = mongoose_1.default.model("cities", citySchema);
 exports.default = cityModel;

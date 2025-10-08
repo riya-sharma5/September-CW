@@ -19,6 +19,7 @@ const stateSchema: Schema<IState> = new Schema(
   {
     timestamps: true,
     collection: "states",
+    versionKey: false,
   }
 );
 const stateModel = mongoose.model<IState>("states", stateSchema);
