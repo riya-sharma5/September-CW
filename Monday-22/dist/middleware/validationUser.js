@@ -44,7 +44,7 @@ exports.createUserValidation = joi_1.default.object({
     city: joi_1.default.string().required(),
     state: joi_1.default.string().required(),
     pincode: joi_1.default.string().required(),
-    gender: joi_1.default.number().required(),
+    gender: joi_1.default.string().required(),
 });
 exports.generateUserValidation = joi_1.default.object({
     email: joi_1.default.string().email().required(),
@@ -75,7 +75,7 @@ exports.deleteUserValidation = joi_1.default.object({
 });
 exports.editUserValidation = joi_1.default.object({
     name: joi_1.default.string().optional(),
-    gender: joi_1.default.number().optional(),
+    gender: joi_1.default.string().optional(),
     email: joi_1.default.string().optional(),
     city: joi_1.default.string().optional(),
     country: joi_1.default.string().optional(),

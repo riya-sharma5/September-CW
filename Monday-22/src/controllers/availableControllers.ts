@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import availabilityModel from "../models/availableModels";
 import mongoose from "mongoose";
+import { createDeflate } from "zlib";
 
 export const createAvailability = async (
   req: Request,
@@ -64,6 +65,7 @@ export const createAvailability = async (
   }
 };
 
+
 export const availableUserList = async (
   req: Request,
   res: Response,
@@ -76,36 +78,74 @@ export const availableUserList = async (
     const skip = (page - 1) * limit;
     const search = (req.query.search as string)?.trim().toLowerCase() || "";
 
-    const query: any = {
-      expiry: { $gt: now },
-    };
-
-    const availableUsers = await availabilityModel
-      .find(query)
-      .populate({
-        path: "userId",
-        match: {
-          name: { $regex: search, $options: 'i'  },
+    const dataPipeline: any[] = [
+      { $match: { expiry: { $gt: now } } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
         },
-        select: "name email gender",
-      })
-      .sort({ expiry: 1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.name": { $regex: search, $options: "i" },
+        },
+      },
+    
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 1,
+          expiry: 1,
+          userId: "$user._id",
+          name: "$user.name",
+          email: "$user.email",
+          gender: "$user.gender",
+          pincode: "$user.pincode",
+        },
+      },
+    ];
 
-    const filteredUsers = availableUsers.filter((doc) => doc.userId);
+    const countPipeline: any[] = [
+      { $match: { expiry: { $gt: now } } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.name": { $regex: search, $options: "i" },
+        },
+      },
+      { $count: "total" },
+    ];
+
+    const [data, countResult] = await Promise.all([
+      availabilityModel.aggregate(dataPipeline),
+      availabilityModel.aggregate(countPipeline),
+    ]);
+
+    const total = countResult[0]?.total || 0;
 
     return res.status(200).json({
       code: 200,
       message: "Available users fetched successfully",
       pagination: {
-        total: filteredUsers.length,
+        total,
         page,
         limit,
-        pages: Math.ceil(filteredUsers.length / limit),
+        pages: Math.ceil(total / limit),
       },
-      data: filteredUsers,
+      data,
     });
   } catch (error) {
     next(error);

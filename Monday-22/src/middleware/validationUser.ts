@@ -41,7 +41,7 @@ export const createUserValidation = Joi.object({
   city: Joi.string().required(),
   state: Joi.string().required(),
   pincode: Joi.string().required(),
-  gender: Joi.number().required(),
+  gender: Joi.string().required(),
 });
 
 export const generateUserValidation = Joi.object({
@@ -80,7 +80,7 @@ export const deleteUserValidation = Joi.object({
 
 export const editUserValidation = Joi.object({
   name: Joi.string().optional(),
-  gender: Joi.number().optional(),
+  gender: Joi.string().optional(),
   email: Joi.string().optional(),
   city: Joi.string().optional(),
   country: Joi.string().optional(),

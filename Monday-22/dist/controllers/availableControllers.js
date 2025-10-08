@@ -64,33 +64,69 @@ const availableUserList = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const search = req.query.search?.trim().toLowerCase() || "";
-        const query = {
-            expiry: { $gt: now },
-        };
-        const availableUsers = await availableModels_1.default
-            .find(query)
-            .populate({
-            path: "userId",
-            match: {
-                name: { $regex: search, $options: 'i' },
+        const dataPipeline = [
+            { $match: { expiry: { $gt: now } } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
             },
-            select: "name email gender",
-        })
-            .sort({ expiry: 1 })
-            .skip(skip)
-            .limit(limit)
-            .exec();
-        const filteredUsers = availableUsers.filter((doc) => doc.userId);
+            { $unwind: "$user" },
+            {
+                $match: {
+                    "user.name": { $regex: search, $options: "i" },
+                },
+            },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $project: {
+                    _id: 1,
+                    expiry: 1,
+                    userId: "$user._id",
+                    name: "$user.name",
+                    email: "$user.email",
+                    gender: "$user.gender",
+                    pincode: "$user.pincode",
+                },
+            },
+        ];
+        const countPipeline = [
+            { $match: { expiry: { $gt: now } } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            { $unwind: "$user" },
+            {
+                $match: {
+                    "user.name": { $regex: search, $options: "i" },
+                },
+            },
+            { $count: "total" },
+        ];
+        const [data, countResult] = await Promise.all([
+            availableModels_1.default.aggregate(dataPipeline),
+            availableModels_1.default.aggregate(countPipeline),
+        ]);
+        const total = countResult[0]?.total || 0;
         return res.status(200).json({
             code: 200,
             message: "Available users fetched successfully",
             pagination: {
-                total: filteredUsers.length,
+                total,
                 page,
                 limit,
-                pages: Math.ceil(filteredUsers.length / limit),
+                pages: Math.ceil(total / limit),
             },
-            data: filteredUsers,
+            data,
         });
     }
     catch (error) {

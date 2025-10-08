@@ -48,9 +48,9 @@ if (!process.env.PRIVATE_KEY) {
     throw new Error("Missing PRIVATE_KEY in environment variables.");
 }
 const genderMap = {
-    0: "Male",
-    1: "Female",
-    2: "Others",
+    "0": "Male",
+    "1": "Female",
+    "2": "Others",
 };
 const sanitizeUser = (user) => {
     const obj = user.toObject();
@@ -82,7 +82,7 @@ const registerUser = async (req, res, next) => {
                 .status(400)
                 .json({ code: 400, message: "Invalid email format", data: [] });
         }
-        if (![0, 1, 2].includes(gender)) {
+        if (!["0", "1", "2"].includes(gender)) {
             return res
                 .status(400)
                 .json({ code: 400, message: "Invalid gender value", data: [] });
