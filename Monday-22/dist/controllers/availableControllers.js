@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAvailability = void 0;
+exports.availableUserList = exports.createAvailability = void 0;
 const availableModels_1 = __importDefault(require("../models/availableModels"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const createAvailability = async (req, res, next) => {
@@ -57,4 +57,45 @@ const createAvailability = async (req, res, next) => {
     }
 };
 exports.createAvailability = createAvailability;
+const availableUserList = async (req, res, next) => {
+    try {
+        const now = new Date();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const search = req.query.search?.trim().toLowerCase() || "";
+        const query = {
+            expiry: { $gt: now },
+        };
+        const availableUsers = await availableModels_1.default
+            .find(query)
+            .populate({
+            path: "userId",
+            match: {
+                name: { $regex: search },
+            },
+            select: "name email gender",
+        })
+            .sort({ expiry: 1 })
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const filteredUsers = availableUsers.filter((doc) => doc.userId);
+        return res.status(200).json({
+            code: 200,
+            message: "Available users fetched successfully",
+            pagination: {
+                total: filteredUsers.length,
+                page,
+                limit,
+                pages: Math.ceil(filteredUsers.length / limit),
+            },
+            data: filteredUsers,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.availableUserList = availableUserList;
 //# sourceMappingURL=availableControllers.js.map

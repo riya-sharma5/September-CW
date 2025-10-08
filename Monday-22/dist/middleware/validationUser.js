@@ -51,7 +51,7 @@ exports.generateUserValidation = joi_1.default.object({
 });
 exports.verifyUserValidation = joi_1.default.object({
     email: joi_1.default.string().email().required(),
-    otp: joi_1.default.string().required(),
+    OTP: joi_1.default.string().required(),
 });
 exports.loginUserValidation = joi_1.default.object({
     email: joi_1.default.string().email().required(),
@@ -59,7 +59,7 @@ exports.loginUserValidation = joi_1.default.object({
 });
 exports.resetUserValidation = joi_1.default.object({
     email: joi_1.default.string().email().required(),
-    otp: joi_1.default.string().required(),
+    OTP: joi_1.default.string().required(),
     newPassword: joi_1.default.string().required(),
 });
 exports.changeUserValidation = joi_1.default.object({

@@ -50,7 +50,7 @@ export const generateUserValidation = Joi.object({
 
 export const verifyUserValidation = Joi.object({
   email: Joi.string().email().required(),
-  otp: Joi.string().required(),
+  OTP: Joi.string().required(),
 });
 
 export const loginUserValidation = Joi.object({
@@ -60,7 +60,7 @@ export const loginUserValidation = Joi.object({
 
 export const resetUserValidation = Joi.object({
   email: Joi.string().email().required(),
-  otp: Joi.string().required(),
+  OTP: Joi.string().required(),
   newPassword: Joi.string().required(),
 });
 

@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
-
+import { IUser } from './userModels'; 
 export interface IAvailability extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId | IUser;
+
   expiry: Date;
 }
 
@@ -24,3 +25,7 @@ const availabilityModel = mongoose.model<IAvailability>(
   availabilitySchema
 );
 export default availabilityModel;
+
+
+
+

@@ -9,5 +9,6 @@ const validationUser_1 = require("../middleware/validationUser");
 const availabilityValidation_1 = require("../utils/availabilityValidation");
 const router = express_1.default.Router();
 router.put("/create", (0, validationUser_1.validateRequest)(availabilityValidation_1.createAvailabilityValidation), availableControllers_1.createAvailability);
+router.get("/list", (0, validationUser_1.validateQuery)(availabilityValidation_1.availableUserListValidation), availableControllers_1.availableUserList);
 exports.default = router;
 //# sourceMappingURL=availableRoutes.js.map

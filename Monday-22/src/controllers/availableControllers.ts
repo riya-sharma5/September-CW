@@ -63,3 +63,51 @@ export const createAvailability = async (
     next(error);
   }
 };
+
+export const availableUserList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const now = new Date();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const search = (req.query.search as string)?.trim().toLowerCase() || "";
+
+    const query: any = {
+      expiry: { $gt: now },
+    };
+
+    const availableUsers = await availabilityModel
+      .find(query)
+      .populate({
+        path: "userId",
+        match: {
+          name: { $regex: search, $options: 'i'  },
+        },
+        select: "name email gender",
+      })
+      .sort({ expiry: 1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const filteredUsers = availableUsers.filter((doc) => doc.userId);
+
+    return res.status(200).json({
+      code: 200,
+      message: "Available users fetched successfully",
+      pagination: {
+        total: filteredUsers.length,
+        page,
+        limit,
+        pages: Math.ceil(filteredUsers.length / limit),
+      },
+      data: filteredUsers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
