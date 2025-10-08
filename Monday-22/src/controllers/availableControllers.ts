@@ -79,7 +79,7 @@ export const availableUserList = async (
     const search = (req.query.search as string)?.trim().toLowerCase() || "";
 
     const dataPipeline: any[] = [
-      { $match: { expiry: { $gt: now } } },
+      { $match: { expiry: { $gte: now } } },
       {
         $lookup: {
           from: "users",

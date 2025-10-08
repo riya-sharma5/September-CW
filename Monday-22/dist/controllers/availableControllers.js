@@ -65,7 +65,7 @@ const availableUserList = async (req, res, next) => {
         const skip = (page - 1) * limit;
         const search = req.query.search?.trim().toLowerCase() || "";
         const dataPipeline = [
-            { $match: { expiry: { $gt: now } } },
+            { $match: { expiry: { $gte: now } } },
             {
                 $lookup: {
                     from: "users",
