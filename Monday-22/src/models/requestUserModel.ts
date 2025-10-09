@@ -6,7 +6,6 @@ export enum statusType {
   rejected = "2",
 }
 
-
 export interface IRequestUser extends Document {
   fromUserId: mongoose.Types.ObjectId;
   toUserId: mongoose.Types.ObjectId;
@@ -16,21 +15,27 @@ export interface IRequestUser extends Document {
 
 const requestUserSchema: Schema = new Schema(
   {
-    fromUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    toUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-      status: {
+    fromUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    toUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    status: {
       type: String,
       enum: statusType,
       deafult: statusType.pending,
-
     },
 
     content: {
-        type: String
-    }
+      type: String,
+    },
   },
-  { timestamps: { createdAt: true, updatedAt: false,  },
-versionKey: false,}
+  { timestamps: { createdAt: true, updatedAt: false }, versionKey: false }
 );
 
 export default mongoose.model<IRequestUser>("RequestUser", requestUserSchema);
