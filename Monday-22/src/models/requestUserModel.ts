@@ -22,7 +22,7 @@ const requestUserSchema: Schema = new Schema(
       type: String,
       enum: statusType,
       deafult: statusType.pending,
-      required: true,
+
     },
 
     content: {

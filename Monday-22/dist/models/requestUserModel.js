@@ -48,7 +48,6 @@ const requestUserSchema = new mongoose_1.Schema({
         type: String,
         enum: statusType,
         deafult: statusType.pending,
-        required: true,
     },
     content: {
         type: String
