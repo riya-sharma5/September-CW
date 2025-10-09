@@ -8,6 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const requestUserRoutes_1 = __importDefault(require("./routes/requestUserRoutes"));
 const countryRoutes_1 = __importDefault(require("./routes/countryRoutes"));
 const stateRoutes_1 = __importDefault(require("./routes/stateRoutes"));
 const cityRoutes_1 = __importDefault(require("./routes/cityRoutes"));
@@ -26,6 +27,7 @@ app.use("/country", countryRoutes_1.default);
 app.use("/state", stateRoutes_1.default);
 app.use("/city", cityRoutes_1.default);
 app.use("/availability", availableRoutes_1.default);
+app.use('/request', requestUserRoutes_1.default);
 app.use(errorHandler_1.errorHandler);
 mongoose_1.default
     .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/userrrrrrdb")

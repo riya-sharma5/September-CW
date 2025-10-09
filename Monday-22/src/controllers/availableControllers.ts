@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import availabilityModel from "../models/availableModels";
 import mongoose from "mongoose";
-import { createDeflate } from "zlib";
+
 
 export const createAvailability = async (
   req: Request,
@@ -151,3 +151,5 @@ export const availableUserList = async (
     next(error);
   }
 };
+
+

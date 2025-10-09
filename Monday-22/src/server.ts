@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-
+import requestUser from "./routes/requestUserRoutes";
 import countryRoutes from "./routes/countryRoutes";
 import stateRoutes from "./routes/stateRoutes";
 import cityRoutes from "./routes/cityRoutes";
@@ -27,6 +27,7 @@ app.use("/country", countryRoutes);
 app.use("/state", stateRoutes);
 app.use("/city", cityRoutes);
 app.use("/availability", availableRoutes);
+app.use('/request', requestUser);
 
 app.use(errorHandler);
 
