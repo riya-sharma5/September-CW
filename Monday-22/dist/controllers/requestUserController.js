@@ -78,11 +78,6 @@ exports.sendRequest = sendRequest;
 const requestList = async (req, res, next) => {
     try {
         const { userId } = req.body;
-        if (!userId) {
-            return res
-                .status(400)
-                .json({ code: 400, message: "userId is required in body" });
-        }
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
