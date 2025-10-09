@@ -13,7 +13,7 @@ exports.sendRequestValidation = joi_1.default.object({
 exports.listValidation = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1).optional(),
     limit: joi_1.default.number().integer().min(1).max(100).default(20).optional(),
-    listType: joi_1.default.number().optional(),
+    listType: joi_1.default.string().optional(),
     search: joi_1.default.string().optional(),
 });
 exports.acceptValidation = joi_1.default.object({

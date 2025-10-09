@@ -9,7 +9,7 @@ export const sendRequestValidation = Joi.object({
 export const listValidation = Joi.object({
   page: Joi.number().integer().min(1).default(1).optional(),
   limit: Joi.number().integer().min(1).max(100).default(20).optional(),
-  listType: Joi.number().optional(),
+  listType: Joi.string().optional(),
   search: Joi.string().optional(),
 });
 
