@@ -42,17 +42,24 @@ var statusType;
     statusType["rejected"] = "2";
 })(statusType || (exports.statusType = statusType = {}));
 const requestUserSchema = new mongoose_1.Schema({
-    fromUserId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User", required: true },
-    toUserId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User", required: true },
+    fromUserId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    toUserId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     status: {
         type: String,
         enum: statusType,
         deafult: statusType.pending,
     },
     content: {
-        type: String
-    }
-}, { timestamps: { createdAt: true, updatedAt: false, },
-    versionKey: false, });
+        type: String,
+    },
+}, { timestamps: { createdAt: true, updatedAt: false }, versionKey: false });
 exports.default = mongoose_1.default.model("RequestUser", requestUserSchema);
 //# sourceMappingURL=requestUserModel.js.map
