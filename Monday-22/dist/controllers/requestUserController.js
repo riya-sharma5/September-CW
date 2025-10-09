@@ -83,72 +83,57 @@ const requestList = async (req, res, next) => {
         const skip = (page - 1) * limit;
         const search = req.query.search?.trim() || "";
         const searchRegex = search ? new RegExp(search, "i") : /.*/;
-        let pipeline = [];
-        if (listType === 0) {
-            pipeline = [
-                { $match: { fromUserId: new mongoose_1.default.Types.ObjectId(userId) } },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "toUserId",
-                        foreignField: "_id",
-                        as: "toUser",
-                    },
-                },
-                { $unwind: "$toUser" },
-                { $match: { "toUser.name": { $regex: searchRegex } } },
-                {
-                    $project: {
-                        _id: 1,
-                        content: 1,
-                        status: 1,
-                        userId: "$toUser._id",
-                        name: "$toUser.name",
-                        email: "$toUser.email",
-                    },
-                },
-                { $skip: skip },
-                { $limit: limit },
-            ];
+        if (!userId || !["0", "1"].includes(listType)) {
+            return res
+                .status(400)
+                .json({ code: 400, message: "Invalid request parameters" });
         }
-        else if (listType === 1) {
-            pipeline = [
-                { $match: { toUserId: new mongoose_1.default.Types.ObjectId(userId) } },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "fromUserId",
-                        foreignField: "_id",
-                        as: "fromUser",
-                    },
-                },
-                { $unwind: "$fromUser" },
-                { $match: { "fromUser.name": { $regex: searchRegex } } },
-                {
-                    $project: {
-                        _id: 1,
-                        content: 1,
-                        status: 1,
-                        userId: "$fromUser._id",
-                        name: "$fromUser.name",
-                        email: "$fromUser.email",
-                    },
-                },
-                { $skip: skip },
-                { $limit: limit },
-            ];
+        const pipeline = [];
+        if (listType === "0") {
+            pipeline.push({
+                $match: { fromUserId: new mongoose_1.default.Types.ObjectId(userId) },
+            });
         }
         else {
-            return res.status(400).json({ code: 400, message: "Invalid list type" });
+            pipeline.push({
+                $match: { toUserId: new mongoose_1.default.Types.ObjectId(userId) },
+            });
         }
-        const requests = await requestUserModel_1.default.aggregate(pipeline);
-        const totalCount = await requestUserModel_1.default.countDocuments(listType === 0 ? { fromUserId: userId } : { toUserId: userId });
+        pipeline.push({
+            $lookup: {
+                from: "users",
+                localField: listType === "0" ? "toUserId" : "fromUserId",
+                foreignField: "_id",
+                as: "userInfo",
+            },
+        });
+        pipeline.push({ $unwind: "$userInfo" });
+        pipeline.push({
+            $match: {
+                "userInfo.name": { $regex: searchRegex },
+            },
+        });
+        pipeline.push({
+            $project: {
+                _id: 1,
+                content: 1,
+                status: 1,
+                userId: "$userInfo._id",
+                name: "$userInfo.name",
+                email: "$userInfo.email",
+            },
+        });
+        pipeline.push({ $skip: skip }, { $limit: limit });
+        const data = await requestUserModel_1.default.aggregate(pipeline);
+        const totalCount = await requestUserModel_1.default.countDocuments(listType === "0"
+            ? { fromUserId: new mongoose_1.default.Types.ObjectId(userId) }
+            : { toUserId: new mongoose_1.default.Types.ObjectId(userId) });
         return res.status(200).json({
             code: 200,
             message: "Request list fetched successfully",
             data: {
-                requests,
                 pagination: {
+                    data,
                     page,
                     limit,
                     totalPages: Math.ceil(totalCount / limit),
