@@ -8,19 +8,20 @@ const joi_1 = __importDefault(require("joi"));
 exports.sendRequestValidation = joi_1.default.object({
     fromUserId: joi_1.default.string().required(),
     toUserId: joi_1.default.string().required(),
-    content: joi_1.default.string().required()
+    content: joi_1.default.string().required(),
 });
 exports.listValidation = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1).optional(),
     limit: joi_1.default.number().integer().min(1).max(100).default(20).optional(),
-    search: joi_1.default.string().optional()
+    listType: joi_1.default.number().optional(),
+    search: joi_1.default.string().optional(),
 });
 exports.acceptValidation = joi_1.default.object({
     requestId: joi_1.default.string().required(),
-    userId: joi_1.default.string().required()
+    userId: joi_1.default.string().required(),
 });
 exports.rejectValidation = joi_1.default.object({
     requestId: joi_1.default.string().required(),
-    userId: joi_1.default.string().required()
+    userId: joi_1.default.string().required(),
 });
 //# sourceMappingURL=requestUserValidation.js.map

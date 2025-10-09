@@ -77,98 +77,84 @@ const sendRequest = async (req, res, next) => {
 exports.sendRequest = sendRequest;
 const requestList = async (req, res, next) => {
     try {
-        const { userId } = req.body;
+        const { userId, listType } = req.body;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const search = req.query.search?.trim() || "";
         const searchRegex = search ? new RegExp(search, "i") : /.*/;
-        const sentRequestsPipeline = [
-            {
-                $match: {
-                    fromUserId: new mongoose_1.default.Types.ObjectId(userId),
+        let pipeline = [];
+        if (listType === 0) {
+            pipeline = [
+                { $match: { fromUserId: new mongoose_1.default.Types.ObjectId(userId) } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "toUserId",
+                        foreignField: "_id",
+                        as: "toUser",
+                    },
                 },
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "toUserId",
-                    foreignField: "_id",
-                    as: "toUser",
+                { $unwind: "$toUser" },
+                { $match: { "toUser.name": { $regex: searchRegex } } },
+                {
+                    $project: {
+                        _id: 1,
+                        content: 1,
+                        status: 1,
+                        userId: "$toUser._id",
+                        name: "$toUser.name",
+                        email: "$toUser.email",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$toUser",
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+            ];
+        }
+        else if (listType === 1) {
+            pipeline = [
+                { $match: { toUserId: new mongoose_1.default.Types.ObjectId(userId) } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "fromUserId",
+                        foreignField: "_id",
+                        as: "fromUser",
+                    },
                 },
-            },
-            {
-                $match: {
-                    "toUser.name": { $regex: searchRegex },
+                { $unwind: "$fromUser" },
+                { $match: { "fromUser.name": { $regex: searchRegex } } },
+                {
+                    $project: {
+                        _id: 1,
+                        content: 1,
+                        status: 1,
+                        userId: "$fromUser._id",
+                        name: "$fromUser.name",
+                        email: "$fromUser.email",
+                    },
                 },
-            },
-            {
-                $project: {
-                    content: 1,
-                    status: 1,
-                    toUserId: "$toUser._id",
-                    name: "$toUser.name",
-                    email: "$toUser.email",
-                },
-            },
-            { $sort: { createdAt: -1 } },
-            { $skip: skip },
-            { $limit: limit },
-        ];
-        const receivedRequestsPipeline = [
-            {
-                $match: {
-                    toUserId: new mongoose_1.default.Types.ObjectId(userId),
-                },
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "fromUserId",
-                    foreignField: "_id",
-                    as: "fromUser",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$fromUser",
-                },
-            },
-            {
-                $match: {
-                    "fromUser.name": { $regex: searchRegex },
-                },
-            },
-            {
-                $project: {
-                    content: 1,
-                    status: 1,
-                    fromUserId: "$fromUser._id",
-                    name: "$fromUser.name",
-                    email: "$fromUser.email",
-                },
-            },
-            { $skip: skip },
-            { $limit: limit },
-        ];
-        const [sentRequests, receivedRequests] = await Promise.all([
-            requestUserModel_1.default.aggregate(sentRequestsPipeline),
-            requestUserModel_1.default.aggregate(receivedRequestsPipeline),
-        ]);
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+            ];
+        }
+        else {
+            return res.status(400).json({ code: 400, message: "Invalid list type" });
+        }
+        const requests = await requestUserModel_1.default.aggregate(pipeline);
+        const totalCount = await requestUserModel_1.default.countDocuments(listType === 0 ? { fromUserId: userId } : { toUserId: userId });
         return res.status(200).json({
             code: 200,
-            message: "Request lists fetched successfully",
+            message: "Request list fetched successfully",
             data: {
-                sentRequests,
-                receivedRequests,
+                requests,
                 pagination: {
                     page,
                     limit,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount,
                 },
             },
         });
