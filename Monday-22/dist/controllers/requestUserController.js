@@ -49,14 +49,14 @@ const sendRequest = async (req, res, next) => {
                 .json({ code: 400, message: "You cannot send a request to yourself" });
         }
         const now = new Date();
-        const recipientAvailability = await availableModels_1.default.findOne({
+        const recieverAvailability = await availableModels_1.default.findOne({
             userId: toUserId,
             expiry: { $gte: now },
         });
-        if (!recipientAvailability) {
+        if (!recieverAvailability) {
             return res.status(400).json({
                 code: 400,
-                message: "Recipient is not available to receive requests.",
+                message: "Reciever is not available to receive requests.",
             });
         }
         const newRequest = await requestUserModel_1.default.create({

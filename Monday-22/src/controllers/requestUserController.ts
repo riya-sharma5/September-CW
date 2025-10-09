@@ -18,15 +18,15 @@ export const sendRequest = async (
     }
 
     const now = new Date();
-    const recipientAvailability = await availabilityModel.findOne({
+    const recieverAvailability = await availabilityModel.findOne({
       userId: toUserId,
       expiry: { $gte: now },
     });
 
-    if (!recipientAvailability) {
+    if (!recieverAvailability) {
       return res.status(400).json({
         code: 400,
-        message: "Recipient is not available to receive requests.",
+        message: "Reciever is not available to receive requests.",
       });
     }
 
