@@ -84,7 +84,7 @@ const requestList = async (req, res, next) => {
         const search = req.query.search?.trim() || "";
         const searchRegex = search ? new RegExp(search, "i") : /.*/;
         let pipeline = [];
-        if (listType === "0") {
+        if (listType === 0) {
             pipeline = [
                 { $match: { fromUserId: new mongoose_1.default.Types.ObjectId(userId) } },
                 {
@@ -111,7 +111,7 @@ const requestList = async (req, res, next) => {
                 { $limit: limit },
             ];
         }
-        else if (listType === "1") {
+        else if (listType === 1) {
             pipeline = [
                 { $match: { toUserId: new mongoose_1.default.Types.ObjectId(userId) } },
                 {
@@ -134,7 +134,6 @@ const requestList = async (req, res, next) => {
                         email: "$fromUser.email",
                     },
                 },
-                { $sort: { createdAt: -1 } },
                 { $skip: skip },
                 { $limit: limit },
             ];

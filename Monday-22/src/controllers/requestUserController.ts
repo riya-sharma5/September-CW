@@ -61,7 +61,7 @@ export const requestList = async (
 
     let pipeline: any[] = [];
 
-    if (listType === "0") {
+    if (listType === 0) {
       pipeline = [
         { $match: { fromUserId: new mongoose.Types.ObjectId(userId) } },
         {
@@ -88,7 +88,7 @@ export const requestList = async (
         { $skip: skip },
         { $limit: limit },
       ];
-    } else if (listType === "1") {
+    } else if (listType === 1) {
       pipeline = [
         { $match: { toUserId: new mongoose.Types.ObjectId(userId) } },
         {
@@ -111,7 +111,7 @@ export const requestList = async (
             email: "$fromUser.email",
           },
         },
-        { $sort: { createdAt: -1 } },
+ 
         { $skip: skip },
         { $limit: limit },
       ];
