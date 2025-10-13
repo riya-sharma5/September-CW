@@ -94,51 +94,64 @@ export const sendRequest = async (req: Request, res: Response, next: NextFunctio
 export const requestList = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, listType, statusType } = req.body;
+
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
     const search = (req.query.search as string)?.trim() || "";
-    const searchRegex = search ? new RegExp(search, "i") : /.*/;
+    const searchRegex = search ? new RegExp(search, "i") : null;
 
-    if (!userId || !["0", "1"].includes(listType)) {
-      return res.status(400).json({ code: 400, message: "Invalid request parameters" });
+ 
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ code: 400, message: "Invalid userId" });
     }
 
-    const pipeline: any[] = [];
+    if (!["0", "1"].includes(listType)) {
+      return res.status(400).json({ code: 400, message: "listType must be '0' (sent) or '1' (received)" });
+    }
 
-    pipeline.push({
-      $match: {
-        [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose.Types.ObjectId(userId),
+    if (
+      !statusType&&
+      statusType !== null &&
+      statusType !== "" &&
+      !["0", "3"].includes(statusType.toString())
+    ) {
+      return res.status(400).json({
+        code: 400,
+        message: "statusType must be either 0 (pending) or 3 (closed)",
+      });
+    }
+
+ 
+    const matchFilter: any = {
+      [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose.Types.ObjectId(userId),
+    };
+
+    if (!statusType && statusType !== "" && statusType !== null) {
+      matchFilter.status = parseInt(statusType, 10);
+    }
+
+ 
+    const pipeline: any[] = [
+      { $match: matchFilter },
+      {
+        $lookup: {
+          from: "users",
+          localField: listType === "0" ? "toUserId" : "fromUserId",
+          foreignField: "_id",
+          as: "userInfo",
+        },
       },
-    });
+      { $unwind: "$userInfo" },
+    ];
 
-    pipeline.push({
-      $lookup: {
-        from: "users",
-        localField: listType === "0" ? "toUserId" : "fromUserId",
-        foreignField: "_id",
-        as: "userInfo",
-      },
-    });
-    
-
-    pipeline.push({
-      $lookup: {
-        from: "users",
-        localField: statusType === "3"? "toUserId" : "fromUserId",
-        foreignField: "_id",
-        as: "closedUserInfo"
-      }
-    });
-
-    
-    pipeline.push({ $unwind: "$userInfo" });
-
-    pipeline.push({
-      $match: {
-        "userInfo.name": { $regex: searchRegex },
-      },
-    });
+    if (searchRegex) {
+      pipeline.push({
+        $match: {
+          "userInfo.name": { $regex: searchRegex },
+        },
+      });
+    }
 
     pipeline.push({
       $project: {
@@ -153,11 +166,11 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
 
     pipeline.push({ $skip: skip }, { $limit: limit });
 
+
     const data = await requestUserModel.aggregate(pipeline);
 
-    const totalCount = await requestUserModel.countDocuments({
-      [listType === "0" ? "fromUserId" : "toUserId" ]: new mongoose.Types.ObjectId(userId),
-    });
+
+    const totalCount = await requestUserModel.countDocuments(matchFilter);
 
     return res.status(200).json({
       code: 200,
@@ -172,6 +185,7 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
         },
       },
     });
+
   } catch (error) {
     console.error("Error in requestList:", error);
     next(error);

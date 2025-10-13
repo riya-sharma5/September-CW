@@ -121,38 +121,47 @@ const requestList = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const search = req.query.search?.trim() || "";
-        const searchRegex = search ? new RegExp(search, "i") : /.*/;
-        if (!userId || !["0", "1"].includes(listType)) {
-            return res.status(400).json({ code: 400, message: "Invalid request parameters" });
+        const searchRegex = search ? new RegExp(search, "i") : null;
+        if (!mongoose_1.default.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ code: 400, message: "Invalid userId" });
         }
-        const pipeline = [];
-        pipeline.push({
-            $match: {
-                [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose_1.default.Types.ObjectId(userId),
+        if (!["0", "1"].includes(listType)) {
+            return res.status(400).json({ code: 400, message: "listType must be '0' (sent) or '1' (received)" });
+        }
+        if (!statusType &&
+            statusType !== null &&
+            statusType !== "" &&
+            !["0", "3"].includes(statusType.toString())) {
+            return res.status(400).json({
+                code: 400,
+                message: "statusType must be either 0 (pending) or 3 (closed)",
+            });
+        }
+        const matchFilter = {
+            [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose_1.default.Types.ObjectId(userId),
+        };
+        if (!statusType && statusType !== "" && statusType !== null) {
+            matchFilter.status = parseInt(statusType, 10);
+        }
+        const pipeline = [
+            { $match: matchFilter },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: listType === "0" ? "toUserId" : "fromUserId",
+                    foreignField: "_id",
+                    as: "userInfo",
+                },
             },
-        });
-        pipeline.push({
-            $lookup: {
-                from: "users",
-                localField: listType === "0" ? "toUserId" : "fromUserId",
-                foreignField: "_id",
-                as: "userInfo",
-            },
-        });
-        pipeline.push({
-            $lookup: {
-                from: "users",
-                localField: statusType === "3" ? "toUserId" : "fromUserId",
-                foreignField: "_id",
-                as: "closedUserInfo"
-            }
-        });
-        pipeline.push({ $unwind: "$userInfo" });
-        pipeline.push({
-            $match: {
-                "userInfo.name": { $regex: searchRegex },
-            },
-        });
+            { $unwind: "$userInfo" },
+        ];
+        if (searchRegex) {
+            pipeline.push({
+                $match: {
+                    "userInfo.name": { $regex: searchRegex },
+                },
+            });
+        }
         pipeline.push({
             $project: {
                 _id: 1,
@@ -165,9 +174,7 @@ const requestList = async (req, res, next) => {
         });
         pipeline.push({ $skip: skip }, { $limit: limit });
         const data = await requestUserModel_1.default.aggregate(pipeline);
-        const totalCount = await requestUserModel_1.default.countDocuments({
-            [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose_1.default.Types.ObjectId(userId),
-        });
+        const totalCount = await requestUserModel_1.default.countDocuments(matchFilter);
         return res.status(200).json({
             code: 200,
             message: "Request list fetched successfully",
