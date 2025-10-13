@@ -151,5 +151,3 @@ export const availableUserList = async (
     next(error);
   }
 };
-
-

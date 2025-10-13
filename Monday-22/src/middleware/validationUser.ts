@@ -32,6 +32,21 @@ export const validateQuery = (schema: ObjectSchema) => {
   };
 };
 
+export const validateParams = (schema: ObjectSchema) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+     
+      let result = await schema.validateAsync(req.params);
+        req.params = result;
+        next();
+    } catch (error: any) {
+      return res.status(400).json({
+        error: error?.details ? error?.details[0]?.message : "something went wrong",
+      });
+    }
+  };
+};
+
 export const createUserValidation = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),

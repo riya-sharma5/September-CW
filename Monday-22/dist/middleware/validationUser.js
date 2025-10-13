@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listUserValidation = exports.editUserValidation = exports.deleteUserValidation = exports.detailUserValidation = exports.changeUserValidation = exports.resetUserValidation = exports.loginUserValidation = exports.verifyUserValidation = exports.generateUserValidation = exports.createUserValidation = exports.validateQuery = exports.validateRequest = void 0;
+exports.listUserValidation = exports.editUserValidation = exports.deleteUserValidation = exports.detailUserValidation = exports.changeUserValidation = exports.resetUserValidation = exports.loginUserValidation = exports.verifyUserValidation = exports.generateUserValidation = exports.createUserValidation = exports.validateParams = exports.validateQuery = exports.validateRequest = void 0;
 const joi_1 = __importDefault(require("joi"));
 const validateRequest = (schema) => {
     return async (req, res, next) => {
@@ -35,6 +35,21 @@ const validateQuery = (schema) => {
     };
 };
 exports.validateQuery = validateQuery;
+const validateParams = (schema) => {
+    return async (req, res, next) => {
+        try {
+            let result = await schema.validateAsync(req.params);
+            req.params = result;
+            next();
+        }
+        catch (error) {
+            return res.status(400).json({
+                error: error?.details ? error?.details[0]?.message : "something went wrong",
+            });
+        }
+    };
+};
+exports.validateParams = validateParams;
 exports.createUserValidation = joi_1.default.object({
     name: joi_1.default.string().required(),
     email: joi_1.default.string().email().required(),

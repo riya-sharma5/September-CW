@@ -9,19 +9,26 @@ exports.sendRequestValidation = joi_1.default.object({
     fromUserId: joi_1.default.string().required(),
     toUserId: joi_1.default.string().required(),
     content: joi_1.default.string().required(),
+    additionalPassengers: joi_1.default.string().optional()
 });
 exports.listValidation = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1).optional(),
     limit: joi_1.default.number().integer().min(1).max(100).default(20).optional(),
     listType: joi_1.default.string().optional(),
     search: joi_1.default.string().optional(),
+    statusType: joi_1.default.string().optional()
 });
 exports.acceptValidation = joi_1.default.object({
     requestId: joi_1.default.string().required(),
     userId: joi_1.default.string().required(),
+    content: joi_1.default.string().required(),
+    additionalPassengers: joi_1.default.string().optional()
 });
 exports.rejectValidation = joi_1.default.object({
     requestId: joi_1.default.string().required(),
     userId: joi_1.default.string().required(),
 });
+// export const detailValidation = Joi.object({
+//    userId : Joi.string().required()
+// })
 //# sourceMappingURL=requestUserValidation.js.map

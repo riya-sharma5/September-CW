@@ -1,9 +1,11 @@
 import Joi from "joi";
 
 export const sendRequestValidation = Joi.object({
+  
   fromUserId: Joi.string().required(),
   toUserId: Joi.string().required(),
   content: Joi.string().required(),
+  additionalPassengers : Joi.string().optional()
 });
 
 export const listValidation = Joi.object({
@@ -11,14 +13,22 @@ export const listValidation = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(20).optional(),
   listType: Joi.string().optional(),
   search: Joi.string().optional(),
+  statusType: Joi.string().optional()
 });
 
 export const acceptValidation = Joi.object({
   requestId: Joi.string().required(),
   userId: Joi.string().required(),
+  content: Joi.string().required(),
+  additionalPassengers: Joi.string().optional()
 });
 
 export const rejectValidation = Joi.object({
   requestId: Joi.string().required(),
   userId: Joi.string().required(),
 });
+
+
+// export const detailValidation = Joi.object({
+//    userId : Joi.string().required()
+// })

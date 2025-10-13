@@ -33,14 +33,29 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.statusType = void 0;
+exports.responseType = exports.preferenceType = exports.statusType = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 var statusType;
 (function (statusType) {
     statusType["pending"] = "0";
     statusType["accepted"] = "1";
     statusType["rejected"] = "2";
+    statusType["closed"] = "3";
 })(statusType || (exports.statusType = statusType = {}));
+var preferenceType;
+(function (preferenceType) {
+    preferenceType["I can Drive"] = "0";
+    preferenceType["I need a ride"] = "1";
+})(preferenceType || (exports.preferenceType = preferenceType = {}));
+var responseType;
+(function (responseType) {
+    responseType["Yes! Text Me"] = "0";
+    responseType["Yes! Call Me"] = "1";
+    responseType["I Can't Right"] = "2";
+    responseType["Possibly Later"] = "3";
+    responseType["Text Me"] = "4";
+    responseType["Call Me"] = "5";
+})(responseType || (exports.responseType = responseType = {}));
 const requestUserSchema = new mongoose_1.Schema({
     fromUserId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
@@ -55,11 +70,20 @@ const requestUserSchema = new mongoose_1.Schema({
     status: {
         type: String,
         enum: statusType,
-        deafult: statusType.pending,
+        default: "0",
     },
     content: {
         type: String,
+        enum: preferenceType,
+        required: true,
     },
-}, { timestamps: { createdAt: true, updatedAt: false }, versionKey: false });
+    additionalPassengers: {
+        type: Number,
+        required: false,
+    }
+}, {
+    timestamps: { createdAt: true, updatedAt: false },
+    versionKey: false,
+});
 exports.default = mongoose_1.default.model("RequestUser", requestUserSchema);
 //# sourceMappingURL=requestUserModel.js.map

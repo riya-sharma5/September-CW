@@ -9,5 +9,6 @@ router.post("/send", (0, validationUser_1.validateRequest)(requestUserValidation
 router.get("/list", (0, validationUser_1.validateQuery)(requestUserValidation_1.listValidation), requestUserController_1.requestList);
 router.post("/accept", (0, validationUser_1.validateRequest)(requestUserValidation_1.acceptValidation), requestUserController_1.acceptRequest);
 router.post("/reject", (0, validationUser_1.validateRequest)(requestUserValidation_1.rejectValidation), requestUserController_1.rejectRequest);
+router.get("/detail/:id", requestUserController_1.detailById);
 exports.default = router;
 //# sourceMappingURL=requestUserRoutes.js.map

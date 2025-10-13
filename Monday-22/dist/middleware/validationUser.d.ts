@@ -3,6 +3,7 @@ import Joi from "joi";
 import type { ObjectSchema } from "joi";
 export declare const validateRequest: (schema: ObjectSchema) => (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const validateQuery: (schema: ObjectSchema) => (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const validateParams: (schema: ObjectSchema) => (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const createUserValidation: Joi.ObjectSchema<any>;
 export declare const generateUserValidation: Joi.ObjectSchema<any>;
 export declare const verifyUserValidation: Joi.ObjectSchema<any>;
