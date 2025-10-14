@@ -1,43 +1,61 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import requestUserModel, { preferenceType, statusType } from "../models/requestUserModel";
+import requestUserModel, {
+  preferenceType,
+  statusType,
+} from "../models/requestUserModel";
 import availabilityModel from "../models/availableModels";
 
-export const sendRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const sendRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-
     const { fromUserId, toUserId, content, additionalPassengers } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(toUserId)) {
-      return res.status(400).json({ code: 400, message: "Invalid receiver ID" });
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid receiver ID" });
     }
 
     if (fromUserId.toString() === toUserId) {
-      return res.status(400).json({ code: 400, message: "You cannot send a request to yourself" });
+      return res
+        .status(400)
+        .json({ code: 400, message: "You cannot send a request to yourself" });
     }
 
     const validPreferences = Object.values(preferenceType);
     if (!validPreferences.includes(content)) {
-      return res.status(400).json({ code: 400, message: "Invalid preference (content) value" });
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid preference (content) value" });
     }
 
     if (content === preferenceType["I can Drive"]) {
       console.log(content, "content :", preferenceType["I can Drive"]);
       console.log("additionalP", additionalPassengers);
-      console.log(Number.isInteger(additionalPassengers))
-      
-      if (!additionalPassengers || !Number(additionalPassengers) || additionalPassengers < 0) {
+      console.log(Number.isInteger(additionalPassengers));
+
+      if (
+        !additionalPassengers ||
+        !Number(additionalPassengers) ||
+        additionalPassengers < 0
+      ) {
         return res.status(400).json({
-          code:400,
-          message:"additionalPassengers must be a non-negative integer when 'I can Drive' is selected"
-        })
+          code: 400,
+          message:
+            "additionalPassengers must be a non-negative integer when 'I can Drive' is selected",
+        });
       }
     }
 
     if (content === preferenceType["I need a ride"] && additionalPassengers) {
       return res.status(400).json({
         code: 400,
-        message: "additionalPassengers should not be provided when 'I Need a Ride' is selected",
+        message:
+          "additionalPassengers should not be provided when 'I Need a Ride' is selected",
       });
     }
 
@@ -63,7 +81,8 @@ export const sendRequest = async (req: Request, res: Response, next: NextFunctio
     if (existingRequest) {
       return res.status(400).json({
         code: 400,
-        message: "You have already sent a similar request that is still pending",
+        message:
+          "You have already sent a similar request that is still pending",
       });
     }
 
@@ -91,7 +110,11 @@ export const sendRequest = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const requestList = async (req: Request, res: Response, next: NextFunction) => {
+export const requestList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { userId, listType, statusType } = req.body;
 
@@ -101,17 +124,21 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
     const search = (req.query.search as string)?.trim() || "";
     const searchRegex = search ? new RegExp(search, "i") : null;
 
- 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ code: 400, message: "Invalid userId" });
     }
 
     if (!["0", "1"].includes(listType)) {
-      return res.status(400).json({ code: 400, message: "listType must be '0' (sent) or '1' (received)" });
+      return res
+        .status(400)
+        .json({
+          code: 400,
+          message: "listType must be '0' (sent) or '1' (received)",
+        });
     }
 
     if (
-      !statusType&&
+      !statusType &&
       statusType !== null &&
       statusType !== "" &&
       !["0", "3"].includes(statusType.toString())
@@ -122,18 +149,17 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
- 
-    const matchFilter: any = {
-      [listType === "0" ? "fromUserId" : "toUserId"]: new mongoose.Types.ObjectId(userId),
+    const match: any = {
+      [listType === "0" ? "fromUserId" : "toUserId"]:
+        new mongoose.Types.ObjectId(userId),
     };
 
     if (!statusType && statusType !== "" && statusType !== null) {
-      matchFilter.status = parseInt(statusType, 10);
+      match.status = parseInt(statusType, 10);
     }
 
- 
     const pipeline: any[] = [
-      { $match: matchFilter },
+      { $match: match },
       {
         $lookup: {
           from: "users",
@@ -166,11 +192,9 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
 
     pipeline.push({ $skip: skip }, { $limit: limit });
 
-
     const data = await requestUserModel.aggregate(pipeline);
 
-
-    const totalCount = await requestUserModel.countDocuments(matchFilter);
+    const totalCount = await requestUserModel.countDocuments(match);
 
     return res.status(200).json({
       code: 200,
@@ -185,19 +209,27 @@ export const requestList = async (req: Request, res: Response, next: NextFunctio
         },
       },
     });
-
   } catch (error) {
     console.error("Error in requestList:", error);
     next(error);
   }
 };
 
-export const acceptRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const acceptRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { requestId, userId, content, additionalPassengers } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(requestId) || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ code: 400, message: "Invalid requestId or userId" });
+    if (
+      !mongoose.Types.ObjectId.isValid(requestId) ||
+      !mongoose.Types.ObjectId.isValid(userId)
+    ) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid requestId or userId" });
     }
 
     const request = await requestUserModel.findById(requestId);
@@ -226,7 +258,9 @@ export const acceptRequest = async (req: Request, res: Response, next: NextFunct
 
     const validResponseTypes = ["0", "1", "2", "3", "4", "5"];
     if (!validResponseTypes.includes(content)) {
-      return res.status(400).json({ code: 400, message: "Invalid response (content) value" });
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid response (content) value" });
     }
 
     if (request.content === preferenceType["I can Drive"]) {
@@ -237,8 +271,7 @@ export const acceptRequest = async (req: Request, res: Response, next: NextFunct
       ) {
         return res.status(400).json({
           code: 400,
-          message:
-            "additionalPassengers must be a 'I can Drive'",
+          message: "additionalPassengers must be a 'I can Drive'",
         });
       }
 
@@ -246,7 +279,8 @@ export const acceptRequest = async (req: Request, res: Response, next: NextFunct
     } else if (additionalPassengers) {
       return res.status(400).json({
         code: 400,
-        message: "additionalPassengers should not provided when the sender selected 'I Need a Ride'",
+        message:
+          "additionalPassengers should not provided when the sender selected 'I Need a Ride'",
       });
     }
 
@@ -279,12 +313,21 @@ export const acceptRequest = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const rejectRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const rejectRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { requestId, userId } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(requestId) || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ code: 400, message: "Invalid requestId or userId" });
+    if (
+      !mongoose.Types.ObjectId.isValid(requestId) ||
+      !mongoose.Types.ObjectId.isValid(userId)
+    ) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "Invalid requestId or userId" });
     }
 
     const request = await requestUserModel.findById(requestId);
@@ -313,7 +356,7 @@ export const rejectRequest = async (req: Request, res: Response, next: NextFunct
 
     //request.status = statusType.rejected;
     request.status = statusType.closed;
-    console.log("request -----------------",request)
+    console.log("request -----------------", request);
     await request.save();
 
     return res.status(200).json({
@@ -327,11 +370,14 @@ export const rejectRequest = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-
-export const detailById = async (req: Request, res: Response, next: NextFunction) => {
+export const detailById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const  userId  = req.params.id;
-  console.log("userId" , req.params);
+    const userId = req.params.id;
+    console.log("userId", req.params);
     if (!mongoose.Types.ObjectId.isValid(userId!)) {
       return res.status(400).json({ code: 400, message: "Invalid userId" });
     }
@@ -340,25 +386,25 @@ export const detailById = async (req: Request, res: Response, next: NextFunction
         $match: {
           $or: [
             { fromUserId: new mongoose.Types.ObjectId(userId) },
-            { toUserId: new mongoose.Types.ObjectId(userId) }
-          ]
-        }
+            { toUserId: new mongoose.Types.ObjectId(userId) },
+          ],
+        },
       },
       {
         $lookup: {
           from: "users",
           localField: "fromUserId",
           foreignField: "_id",
-          as: "fromUser"
-        }
+          as: "fromUser",
+        },
       },
       {
         $lookup: {
           from: "users",
           localField: "toUserId",
           foreignField: "_id",
-          as: "toUser"
-        }
+          as: "toUser",
+        },
       },
       { $unwind: "$fromUser" },
       { $unwind: "$toUser" },
@@ -374,16 +420,15 @@ export const detailById = async (req: Request, res: Response, next: NextFunction
           _toUserId: "$toUser._id",
           tpUserName: "$toUser.name",
           toUserEmail: "$toUser.email",
-        }
+        },
       },
     ]);
 
     return res.status(200).json({
       code: 200,
       message: "Request details fetched successfully",
-      data: requests
+      data: requests,
     });
-
   } catch (error) {
     console.error("Error in detailById:", error);
     next(error);
