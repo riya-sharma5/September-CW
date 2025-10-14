@@ -134,9 +134,7 @@ const requestList = async (req, res, next) => {
             return res.status(400).json({ code: 400, message: "Invalid userId" });
         }
         if (!["0", "1"].includes(listType)) {
-            return res
-                .status(400)
-                .json({
+            return res.status(400).json({
                 code: 400,
                 message: "listType must be '0' (sent) or '1' (received)",
             });
@@ -318,7 +316,6 @@ const rejectRequest = async (req, res, next) => {
         }
         //request.status = statusType.rejected;
         request.status = requestUserModel_1.statusType.closed;
-        console.log("request -----------------", request);
         await request.save();
         return res.status(200).json({
             code: 200,
