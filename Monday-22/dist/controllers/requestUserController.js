@@ -335,7 +335,6 @@ exports.rejectRequest = rejectRequest;
 const detailById = async (req, res, next) => {
     try {
         const userId = req.params.id;
-        console.log("userId", req.params);
         if (!mongoose_1.default.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ code: 400, message: "Invalid userId" });
         }
@@ -376,7 +375,7 @@ const detailById = async (req, res, next) => {
                     fromUserName: "$fromUser.name",
                     fromUseremail: "$fromUser.email",
                     _toUserId: "$toUser._id",
-                    tpUserName: "$toUser.name",
+                    t0UserName: "$toUser.name",
                     toUserEmail: "$toUser.email",
                 },
             },

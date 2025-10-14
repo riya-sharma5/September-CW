@@ -377,7 +377,7 @@ export const detailById = async (
 ) => {
   try {
     const userId = req.params.id;
-    console.log("userId", req.params);
+    
     if (!mongoose.Types.ObjectId.isValid(userId!)) {
       return res.status(400).json({ code: 400, message: "Invalid userId" });
     }
@@ -418,7 +418,7 @@ export const detailById = async (
           fromUserName: "$fromUser.name",
           fromUseremail: "$fromUser.email",
           _toUserId: "$toUser._id",
-          tpUserName: "$toUser.name",
+          t0UserName: "$toUser.name",
           toUserEmail: "$toUser.email",
         },
       },
